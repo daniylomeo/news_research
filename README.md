@@ -73,6 +73,20 @@ python "$env:USERPROFILE\.codex\skills\.system\skill-creator\scripts\quick_valid
 python "$env:USERPROFILE\.codex\skills\.system\skill-creator\scripts\quick_validate.py" .\skills\viewpoint-map
 ```
 
+## Installation
+
+Codex does not automatically discover skills just because they exist inside a repository. To make these available in brand-new chats, install them into your Codex skills directory:
+
+```powershell
+$dest = "$env:USERPROFILE\.codex\skills"
+New-Item -ItemType Directory -Force -Path $dest | Out-Null
+Copy-Item .\skills\world-research "$dest\world-research" -Recurse -Force
+Copy-Item .\skills\fact-check-ledger "$dest\fact-check-ledger" -Recurse -Force
+Copy-Item .\skills\viewpoint-map "$dest\viewpoint-map" -Recurse -Force
+```
+
+After installation, start a new Codex chat. The skills should appear in the available skills list and trigger automatically for matching research tasks.
+
 ## Design Principle
 
 The user should only need to name the topic. For broad, controversial, historical, scientific, policy, or current-events research, the skills should automatically choose the appropriate depth, build the dossier when needed, audit sources, map real viewpoints, and run the preflight gate before delivery.
