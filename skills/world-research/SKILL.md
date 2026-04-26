@@ -16,6 +16,7 @@ Use this skill to build high-trust research briefings about current events, past
 - Default to full briefing depth for broad public-interest questions unless the user explicitly asks for a quick answer. If the topic is too large for one pass, narrow the research boundary before concluding; do not present conclusions that depend on evidence not yet reviewed.
 - For ordinary narrow questions, use standard briefing depth. For substantial public-interest topics, do not treat "I can answer in chat" as a reason to skip dossier mode; the file is part of the quality workflow because it preserves source cards, claim ledgers, case audits, and the audit trail.
 - Do not require the user to ask for dossier mode, source cards, named viewpoints, funder disclosure, contradiction search, self-review, or the quality gate. These are automatic obligations for broad, controversial, historical, scientific, policy, or current-events research. The user should only need to name the topic.
+- Do not deliver "first-pass" dossiers for the user's substantive research questions. Either complete the central work inside a narrowed boundary or mark the file as incomplete/failed and keep revising. Phrases like "first-pass national briefing," "not a full audit," or "does not estimate" are red flags when they refer to central evidence.
 - For broad comparison questions, decompose large aggregates before judging. Do not compare "America" with "Europe," "the media," "the West," or similar huge categories until the analysis separates meaningful subcases, populations, regions, institutions, and person-types.
 - Do not use "needs deeper review" for evidence that is central to the conclusion. If a source, PDF, filing, dataset, legal argument, local record, or case comparison is integral, inspect it in the first pass before reaching a conclusion. If that cannot be done, lower the conclusion and explicitly state that the answer is not yet complete.
 - Aim for research completeness inside the agreed boundary. "Open questions" are for genuinely unavailable evidence, future developments, or peripheral leads, not for core work that should have been done.
@@ -49,6 +50,10 @@ Use this skill to build high-trust research briefings about current events, past
 - Apply equal evidentiary grace across comparisons. If one actor receives a distinction between "authoritarian," "illiberal," "racist," "imperial," and "fascist," apply the same distinctions to all actors being compared. Do not call similar behavior fascistic in one case and merely abusive in another without explaining the difference in ideology, movement form, institutional context, intent, scale, or trajectory.
 - When the question alleges hidden purposes, covert action, propaganda, laundering, institutional misconduct, or euphemistic program language, do the deeper audit in the first pass: inspect primary records, award/grant data, implementers, funding chains, country examples, strategic interests, local consent, and concealment indicators before drawing conclusions.
 - When the question depends on concrete projects, facilities, local conflicts, contracts, permits, subsidies, or regulatory decisions, include a first-pass case audit. Sample enough real cases to test the national narrative against ground-level records; do not defer this if the truth depends on implementation.
+- For project-, facility-, or implementation-dependent topics, the case audit must inspect concrete named cases with direct records. Each case should include location, actor/developer/operator or agency, status/decision, power/water/money/permit/tariff facts where relevant, direct source links, and what the case proves or does not prove. Broad region summaries like "Virginia," "PJM," or "Ohio" are not enough unless tied to specific orders, dockets, projects, tariffs, or local records.
+- For advocacy, industry, think-tank, NGO, nonprofit, and coalition sources, include funding, ownership, membership, donor disclosure, institutional incentives, or donor opacity notes in the source card and viewpoint map. Do not treat their reports as neutral evidence without this.
+- Policy sections must be evidence-anchored. Each option needs a mechanism, implementation steps, enforcement problem, tradeoffs, serious objections, and at least one source link or case anchor.
+- Dossiers must include a **Quality Gate Result** section reporting the gate command and result. Do not summarize the dossier to the user if the gate reports failures.
 
 ## Research Workflow
 
@@ -95,6 +100,7 @@ Use this skill to build high-trust research briefings about current events, past
    - Inspect primary local records when available: permits, zoning minutes, interconnection requests, utility filings, water agreements, tax-incentive agreements, environmental permits, litigation, community-benefit agreements, and local budgets.
    - For each case, identify the developer/operator, facility type, promised investment/jobs, permanent jobs, power demand, water demand, public subsidies, ratepayer exposure, local tax effects, land-use impacts, public process, and current status.
    - Use the case audit to test whether national claims survive contact with local implementation.
+   - Do not count broad regional summaries as cases unless they are tied to specific records such as a docket, tariff order, permit, local vote, project filing, or named project.
 10. Collect sources and make a source card for each important source:
    - Title, author/organization, date, URL or citation.
    - Source type and proximity to event.
@@ -187,6 +193,7 @@ For dossier mode, create a markdown file under a project research folder, such a
 - Claim ledger.
 - Open questions limited to genuinely unavailable evidence, future developments, or peripheral leads.
 - Audit trail.
+- Quality Gate Result.
 
 Before finalizing a dossier, scan each major section and remove or rewrite any paragraph that is only a compressed assertion. Replace it with evidence, explanation, examples, citations, and counterargument, or omit it.
 

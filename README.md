@@ -90,3 +90,5 @@ After installation, start a new Codex chat. The skills should appear in the avai
 ## Design Principle
 
 The user should only need to name the topic. For broad, controversial, historical, scientific, policy, or current-events research, the skills should automatically create a dossier file when a writable workspace exists, audit sources, map real viewpoints, run the preflight gate before delivery, then summarize and link the dossier. If no dossier file is created, the agent should explain why.
+
+This repo also includes `AGENTS.md` so new Codex chats opened inside the repository receive the same high-level research workflow instruction even before a skill body is loaded.
