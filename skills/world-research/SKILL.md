@@ -1,6 +1,6 @@
 ---
 name: world-research
-description: Use when researching current events, historical events, geopolitics, policy, institutions, conflicts, social issues, economics, science-in-policy disputes, or other world affairs where the user wants a holistic high-quality research briefing, direct answers, source trail, historical context, method appraisal, and clearly labeled uncertainty or viewpoint differences.
+description: Use when researching current events, historical events, geopolitics, policy, institutions, conflicts, social issues, economics, science-in-policy disputes, or other world affairs. For broad, controversial, policy, historical, scientific, or current-events questions, automatically create a research dossier file in the workspace, include source cards and named viewpoint analysis, run the quality gate, then summarize and link the dossier unless the user explicitly asks for a quick chat-only answer.
 ---
 
 # World Research
@@ -12,8 +12,9 @@ Use this skill to build high-trust research briefings about current events, past
 - A polished but shallow dossier is a failed draft. Do not deliver it as a completed answer.
 - Treat the user's question as the starting doorway into the issue, not the full boundary of the research. Answer it directly, but also build the surrounding context needed to understand what the answer means.
 - For substantial or controversial topics, produce a holistic issue model before conclusions: history, timeline, institutions, actors, incentives, definitions, mechanisms, data landscape, affected populations, policy choices, tradeoffs, and unknowns.
+- Default to dossier mode for broad, controversial, historical, scientific, policy, or current-events questions whenever a writable workspace exists. Create or update a structured markdown dossier under `research/<topic-slug>.md`, run the quality gate, then give the user a concise guided summary with a file link. Use chat-only full briefing only when no writable workspace exists or the user explicitly asks not to create a file.
 - Default to full briefing depth for broad public-interest questions unless the user explicitly asks for a quick answer. If the topic is too large for one pass, narrow the research boundary before concluding; do not present conclusions that depend on evidence not yet reviewed.
-- For very large topics, use dossier mode: create or update a structured research dossier in the workspace when the full evidence, source cards, case audits, historical context, and policy analysis would be too long for a useful chat response. The chat response should summarize the dossier and link to it.
+- For ordinary narrow questions, use standard briefing depth. For substantial public-interest topics, do not treat "I can answer in chat" as a reason to skip dossier mode; the file is part of the quality workflow because it preserves source cards, claim ledgers, case audits, and the audit trail.
 - Do not require the user to ask for dossier mode, source cards, named viewpoints, funder disclosure, contradiction search, self-review, or the quality gate. These are automatic obligations for broad, controversial, historical, scientific, policy, or current-events research. The user should only need to name the topic.
 - For broad comparison questions, decompose large aggregates before judging. Do not compare "America" with "Europe," "the media," "the West," or similar huge categories until the analysis separates meaningful subcases, populations, regions, institutions, and person-types.
 - Do not use "needs deeper review" for evidence that is central to the conclusion. If a source, PDF, filing, dataset, legal argument, local record, or case comparison is integral, inspect it in the first pass before reaching a conclusion. If that cannot be done, lower the conclusion and explicitly state that the answer is not yet complete.
@@ -65,9 +66,9 @@ Use this skill to build high-trust research briefings about current events, past
    - Explain the causal chain step by step. Example: not just "transmission upgrades," but what transmission is, why large loads require it, who builds it, how costs are recovered, and why ratepayers may care.
 4. Set the depth contract:
    - **Quick answer:** use only when the user asks for speed or a narrow lookup.
-   - **Standard briefing:** use for ordinary research questions; include issue context, source map, viewpoint map, and key uncertainties.
+   - **Standard briefing:** use for ordinary narrow research questions; include issue context, source map, viewpoint map, and key uncertainties.
    - **Full research briefing:** use for broad, consequential, controversial, scientific, historical, or policy questions; include source cards, study/data readouts, debate/commentary, contradiction search, and adversarial self-review.
-   - **Dossier mode:** use for topics where full research quality requires more detail than chat can comfortably hold; write the longform research notes to a markdown file and give the user a concise guided summary.
+   - **Dossier mode:** default for broad, consequential, controversial, scientific, historical, policy, or current-events questions when a writable workspace exists; write the longform research notes to `research/<topic-slug>.md`, run `scripts/research_quality_gate.py`, revise until it passes or mark incomplete, and give the user a concise guided summary.
    - If full coverage is impossible in one response, narrow the research boundary before concluding. Do not answer beyond the evidence actually reviewed.
 5. Create a working claim ledger: known facts, contested claims, open questions, key terms, and claims implied by the user's framing.
 6. Build a source plan using this priority order:
@@ -138,7 +139,7 @@ Use this skill to build high-trust research briefings about current events, past
     - Test the strongest counterexample against the rubric.
     - Explain why similar-looking cases are classified differently.
 18. Run a contradiction search before finalizing: search for the strongest evidence against the emerging conclusion, including critiques from serious opposing viewpoints.
-19. Run the preflight gate before finalizing, even if the user did not ask for it. For dossier mode, run `scripts/research_quality_gate.py <dossier-path>` and revise until it reports no failures, or mark the dossier as a failed/incomplete draft. For chat-only full briefings, apply `references/preflight-gate.md` manually before answering.
+19. Run the preflight gate before finalizing, even if the user did not ask for it. For dossier mode, run `scripts/research_quality_gate.py <dossier-path>` and revise until it reports no failures, or mark the dossier as a failed/incomplete draft. For chat-only full briefings, apply `references/preflight-gate.md` manually before answering and explain why no dossier file was created.
 20. Produce the answer with uncertainty labels, source notes, and a "what would change this assessment" section when appropriate.
 21. End with an adversarial self-review for substantial research: what could be wrong, what sources may be missing, and what assumptions are doing work. Do not use this section to excuse missing central research; complete central research first or narrow the answer.
 
@@ -169,7 +170,7 @@ Default briefing format:
 - **Open Questions:** genuinely unavailable evidence, future developments, or peripheral leads; do not put central missing work here.
 - **Audit Trail:** key searches, documents checked, dates accessed, and unresolved source gaps when the research is substantial.
 
-For dossier mode, create a markdown file under a project research folder, such as `research/<topic-slug>.md`, with these sections:
+For dossier mode, create a markdown file under a project research folder, such as `research/<topic-slug>.md`, with these sections. This is the default for broad, controversial, historical, scientific, policy, and current-events research when a writable workspace exists:
 
 - Executive summary.
 - Research boundary and questions.

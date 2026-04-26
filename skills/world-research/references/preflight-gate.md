@@ -2,7 +2,7 @@
 
 Use this gate before delivering any full briefing or dossier. Its purpose is to prevent polished summaries from masquerading as research.
 
-This gate is automatic. Do not wait for the user to request it. For broad, controversial, historical, scientific, policy, or current-events research, the user should only need to name the topic; the agent is responsible for choosing dossier mode when needed and running this gate before delivery.
+This gate is automatic. Do not wait for the user to request it. For broad, controversial, historical, scientific, policy, or current-events research, the user should only need to name the topic; the agent is responsible for creating a dossier file when a writable workspace exists and running this gate before delivery. If no dossier file is created, the final answer must explain why.
 
 ## Hard Stop Conditions
 

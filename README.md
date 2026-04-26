@@ -2,7 +2,7 @@
 
 Codex skills for high-quality research into current events, history, politics, policy, science-in-policy disputes, institutions, and public controversies.
 
-The goal of this repo is to make serious research behavior automatic: source discipline, named viewpoints, method checks, funder disclosure, contradiction searches, and a fail-closed quality gate before delivery.
+The goal of this repo is to make serious research behavior automatic: dossier creation for broad topics, source discipline, named viewpoints, method checks, funder disclosure, contradiction searches, and a fail-closed quality gate before delivery.
 
 ## Skills
 
@@ -18,7 +18,7 @@ Use for broad research briefings and dossiers. It requires:
 - NGO, nonprofit, think-tank, advocacy, rating, and index audits;
 - named debate/commentary maps, not generic "both sides" placeholders;
 - hard counterexamples and adversarial self-review;
-- automatic dossier mode and preflight quality gate for broad or controversial topics.
+- automatic dossier file creation and preflight quality gate for broad or controversial topics.
 
 ### `fact-check-ledger`
 
@@ -89,4 +89,4 @@ After installation, start a new Codex chat. The skills should appear in the avai
 
 ## Design Principle
 
-The user should only need to name the topic. For broad, controversial, historical, scientific, policy, or current-events research, the skills should automatically choose the appropriate depth, build the dossier when needed, audit sources, map real viewpoints, and run the preflight gate before delivery.
+The user should only need to name the topic. For broad, controversial, historical, scientific, policy, or current-events research, the skills should automatically create a dossier file when a writable workspace exists, audit sources, map real viewpoints, run the preflight gate before delivery, then summarize and link the dossier. If no dossier file is created, the agent should explain why.
