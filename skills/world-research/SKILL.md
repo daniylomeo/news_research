@@ -29,6 +29,7 @@ Use this skill to build high-trust research briefings about current events, past
 - For current events or anything likely to have changed, browse and verify dates before answering.
 - Separate facts, inferences, interpretations, and opinions.
 - Cite sources for material claims, especially dates, numbers, quotes, allegations, legal claims, and causal claims.
+- Dossiers must contain retraceable source links. Source cards, study/data readouts, case audits, viewpoint maps, claim ledgers, and audit trails should link to the actual documents, datasets, filings, reports, or pages used. A dossier with no URLs or source links is a failed draft.
 - Look for disconfirming evidence, missing context, and plausible alternative explanations.
 - Label uncertainty plainly. Do not fill gaps with confident narrative.
 - Make the work reproducible: preserve enough search terms, source links, dates accessed, and reasoning that the user can retrace the path.
@@ -97,6 +98,8 @@ Use this skill to build high-trust research briefings about current events, past
 10. Collect sources and make a source card for each important source:
    - Title, author/organization, date, URL or citation.
    - Source type and proximity to event.
+   - Direct link to the document, dataset, page, filing, or archive used. Do not rely on named-source references without URLs when web sources are available.
+   - What parts were actually read or inspected.
    - Evidence offered and method used.
    - Ownership, funding, institutional incentives, or conflicts where relevant.
    - For NGOs/nonprofits/think tanks: methods, data, source trail, claim support, named disclosed funders above the relevant reporting threshold, especially government agencies, corporate donors, major foundations, and industry-linked support. Do not substitute vague phrases like "funded by individuals, foundations, and companies" for named funder disclosure; if names are unavailable, record the opacity.
@@ -188,6 +191,8 @@ For dossier mode, create a markdown file under a project research folder, such a
 Before finalizing a dossier, scan each major section and remove or rewrite any paragraph that is only a compressed assertion. Replace it with evidence, explanation, examples, citations, and counterargument, or omit it.
 
 Then run `scripts/research_quality_gate.py <dossier-path>`. Treat any failure as a block on delivery unless the final response clearly says the dossier is incomplete or failed.
+
+If the gate passes but the dossier has no retraceable links, thin source cards, or source names without document URLs, treat that as a judgment failure and revise anyway.
 
 For the complete manual gate, read `references/preflight-gate.md`.
 

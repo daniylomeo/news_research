@@ -9,6 +9,9 @@ This gate is automatic. Do not wait for the user to request it. For broad, contr
 Stop and revise before final output if any answer is "yes":
 
 - Does a central conclusion depend on a report, dataset, filing, study, local record, or rebuttal that has not been inspected?
+- Does the dossier lack retraceable URLs or citations for the actual documents, datasets, filings, reports, and pages used?
+- Do source cards name documents without linking to them or stating what parts were read?
+- Do study/data readouts, case audits, viewpoint maps, or claim ledgers make material claims without direct source links?
 - Does any major section consist mostly of conclusion bullets without mechanisms, examples, citations, and counterarguments?
 - Does the viewpoint section use generic camps instead of named people, institutions, texts, movements, parties, or schools with actual arguments?
 - Does a source card accept an NGO, think tank, rating product, index, or advocacy source without method, funding/governance, incentives, and primary-evidence checks?

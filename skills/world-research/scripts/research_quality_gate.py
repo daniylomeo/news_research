@@ -50,6 +50,15 @@ REQUIRED_SECTIONS = [
     "Audit Trail",
 ]
 
+LINK_REQUIRED_SECTIONS = [
+    "Source Cards",
+    "Study and Data Readouts",
+    "Case or Project Audits",
+    "Viewpoint and Commentary Map",
+    "Claim Ledger",
+    "Audit Trail",
+]
+
 
 def headings(text: str) -> list[tuple[int, str, int]]:
     out: list[tuple[int, str, int]] = []
@@ -97,6 +106,12 @@ def main() -> int:
     text = path.read_text(encoding="utf-8")
     lower = text.lower()
     findings: list[tuple[str, str, str]] = []
+    total_links = count_links(text)
+
+    if total_links == 0:
+        findings.append(("FAIL", "document", "dossier contains no retraceable URLs or markdown links"))
+    elif total_links < 8:
+        findings.append(("WARN", "document", f"dossier has only {total_links} link(s); source trail may be too thin"))
 
     for required in REQUIRED_SECTIONS:
         if required.lower() not in lower:
@@ -111,6 +126,20 @@ def main() -> int:
         words = prose_words(body)
         bullets = bullet_lines(body)
         links = count_links(body)
+        if any(title.lower().startswith(name.lower()) for name in LINK_REQUIRED_SECTIONS) and links == 0:
+            findings.append(("FAIL", title, "section requires retraceable links to sources/records"))
+        if title.lower().startswith("source cards"):
+            source_card_markers = len(re.findall(r"^\*\*.+?\*\*", body, flags=re.MULTILINE))
+            if source_card_markers >= 3 and links < max(3, source_card_markers // 2):
+                findings.append(("FAIL", title, "source cards name sources without enough direct links"))
+            if "what parts" not in body.lower() and "parts read" not in body.lower() and "inspected" not in body.lower():
+                findings.append(("FAIL", title, "source cards do not say what parts were read or inspected"))
+        if title.lower().startswith("study and data readouts") and not re.search(r"\b(method|methodology|scenario|sample|model|uncertainty|confidence interval|limitation)\b", body, flags=re.IGNORECASE):
+            findings.append(("FAIL", title, "study/data readouts lack method or uncertainty discussion"))
+        if title.lower().startswith("case or project audits") and not re.search(r"\b(permit|tariff|order|filing|docket|zoning|minutes|agreement|audit|regulator|commission)\b", body, flags=re.IGNORECASE):
+            findings.append(("FAIL", title, "case/project audit lacks primary-record indicators"))
+        if title.lower().startswith("viewpoint") and re.search(r"represented by groups such as|represented by hyperscalers|represented by energy-policy commentators|represented by .*advocates", body, flags=re.IGNORECASE):
+            findings.append(("FAIL", title, "viewpoint representatives are too generic; name specific actors/institutions/texts"))
         if words > 120 and bullets >= 5 and links == 0:
             findings.append(("WARN", title, "bullet-heavy section has no citations/links"))
         if title.lower().startswith(("rubric", "assessment")) and "threshold" not in body.lower():
