@@ -13,6 +13,7 @@ Use this skill to build high-trust research briefings about current events, past
 - Treat the user's question as the starting doorway into the issue, not the full boundary of the research. Answer it directly, but also build the surrounding context needed to understand what the answer means.
 - For substantial or controversial topics, produce a holistic issue model before conclusions: history, timeline, institutions, actors, incentives, definitions, mechanisms, data landscape, affected populations, policy choices, tradeoffs, and unknowns.
 - Default to dossier mode for broad, controversial, historical, scientific, policy, or current-events questions whenever a writable workspace exists. Create or update a structured markdown dossier under `research/<topic-slug>.md`, run the quality gate, then give the user a concise guided summary with a file link. Use chat-only full briefing only when no writable workspace exists or the user explicitly asks not to create a file.
+- When the user asks a follow-up question about an existing dossier topic, append the new research as a dated chapter to the original dossier instead of creating a separate file. The chapter must include its own research question, source cards or added source notes, claim-ledger updates, audit trail updates, and quality-gate result, while preserving the original dossier's prior conclusions unless the new evidence revises them.
 - Default to full briefing depth for broad public-interest questions unless the user explicitly asks for a quick answer. If the topic is too large for one pass, narrow the research boundary before concluding; do not present conclusions that depend on evidence not yet reviewed.
 - For ordinary narrow questions, use standard briefing depth. For substantial public-interest topics, do not treat "I can answer in chat" as a reason to skip dossier mode; the file is part of the quality workflow because it preserves source cards, claim ledgers, case audits, and the audit trail.
 - Do not require the user to ask for dossier mode, source cards, named viewpoints, funder disclosure, contradiction search, self-review, or the quality gate. These are automatic obligations for broad, controversial, historical, scientific, policy, or current-events research. The user should only need to name the topic.
@@ -75,6 +76,7 @@ Use this skill to build high-trust research briefings about current events, past
    - **Standard briefing:** use for ordinary narrow research questions; include issue context, source map, viewpoint map, and key uncertainties.
    - **Full research briefing:** use for broad, consequential, controversial, scientific, historical, or policy questions; include source cards, study/data readouts, debate/commentary, contradiction search, and adversarial self-review.
    - **Dossier mode:** default for broad, consequential, controversial, scientific, historical, policy, or current-events questions when a writable workspace exists; write the longform research notes to `research/<topic-slug>.md`, run `scripts/research_quality_gate.py`, revise until it passes or mark incomplete, and give the user a concise guided summary.
+   - **Follow-up chapter mode:** if the current question clearly extends a dossier already created in this workspace, reopen that original `research/<topic-slug>.md` and append a new `## Chapter: <follow-up question> (<YYYY-MM-DD>)` section near the end before the final Quality Gate Result. Include chapter-specific source notes, study/data readouts, viewpoint or policy updates where relevant, claim-ledger additions, and an audit-trail update. Then rerun the quality gate on the full dossier and update the final Quality Gate Result.
    - If full coverage is impossible in one response, narrow the research boundary before concluding. Do not answer beyond the evidence actually reviewed.
 5. Create a working claim ledger: known facts, contested claims, open questions, key terms, and claims implied by the user's framing.
 6. Build a source plan using this priority order:
@@ -194,6 +196,8 @@ For dossier mode, create a markdown file under a project research folder, such a
 - Open questions limited to genuinely unavailable evidence, future developments, or peripheral leads.
 - Audit trail.
 - Quality Gate Result.
+
+For follow-up questions on the same topic, keep the original dossier file and append each follow-up as a dated chapter before the final **Quality Gate Result** section. Do not overwrite earlier analysis; add a short revision note when the new chapter changes a prior conclusion, confidence level, source assessment, or claim-ledger status.
 
 Before finalizing a dossier, scan each major section and remove or rewrite any paragraph that is only a compressed assertion. Replace it with evidence, explanation, examples, citations, and counterargument, or omit it.
 
