@@ -107,7 +107,7 @@ Created: {today}
 
 ## Done Criteria
 
-- Claim map includes the major mainstream, academic, industry/state, local, dissident, and ideological claims.
+- Claim map includes the major mainstream, academic, industry/state, local, dissident, conspiratorial, and ideological claims.
 - Load-bearing claims are marked.
 - Central sources are logged in `source-intake.csv`.
 - Load-bearing claims have extraction rows in `evidence-extraction.csv` or are explicitly marked unauditable/incomplete.
