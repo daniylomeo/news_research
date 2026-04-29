@@ -98,7 +98,7 @@ Confidence levels:
 13. Make an evidence row for each claim.
 14. Explain the ruling in plain language, including caveats and missing evidence.
 15. For consequential checks, add a short adversarial review: what could make this assessment wrong or incomplete. Do not use this review to excuse skipping central evidence.
-16. For broad research dossiers using this skill inside `world-research`, run that skill's preflight gate before delivery. Treat failures about deferred central evidence, weak aggregators, unsupported rubrics, or missing method readouts as blocking.
+16. For broad Evidence Audit Projects using this skill inside `world-research`, run that skill's preflight gate before delivery. Treat failures about deferred central evidence, weak aggregators, unsupported rubrics, missing method readouts, or missing extraction rows as blocking.
 
 ## Evidence Row Format
 

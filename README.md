@@ -2,23 +2,28 @@
 
 Codex skills for high-quality research into current events, history, politics, policy, science-in-policy disputes, institutions, and public controversies.
 
-The goal of this repo is to make serious research behavior automatic: dossier creation for broad topics, source discipline, named viewpoints, method checks, funder disclosure, contradiction searches, and a fail-closed quality gate before delivery.
+The goal of this repo is to make serious research behavior automatic: Evidence Audit Project creation for broad topics, source-neutral claim mapping, extraction before synthesis, method and data checks, funder/incentive disclosure, contradiction searches, and a fail-closed quality gate before delivery.
 
 ## Skills
 
 ### `world-research`
 
-Use for broad research briefings and dossiers. It requires:
+Use for broad research briefings and Evidence Audit Projects. It requires:
 
 - holistic issue models, not narrow answer-only summaries;
+- broad claim intake before conclusions;
+- source-neutral evidence evaluation, where prestige and stigma affect scrutiny but not truth;
+- extraction tables for load-bearing claims before synthesis;
 - mechanism explanations for systems, institutions, money flows, incentives, and tradeoffs;
 - historical context with real depth when history matters;
 - primary and official sources where available;
-- source cards for major evidence;
+- source intake and evidence extraction for major evidence;
 - NGO, nonprofit, think-tank, advocacy, rating, and index audits;
+- economic and ideological lens checks for policy/economic questions;
 - named debate/commentary maps, not generic "both sides" placeholders;
+- case/data audits and sensitivity tests where implementation or coding matters;
 - hard counterexamples and adversarial self-review;
-- automatic dossier file creation and preflight quality gate for broad or controversial topics.
+- automatic Evidence Audit Project creation and preflight quality gate for broad or controversial topics.
 
 ### `fact-check-ledger`
 
@@ -45,9 +50,13 @@ Use for mapping debates, narratives, ideologies, and commentary. It requires:
 
 ## Quality Gate
 
-`skills/world-research/scripts/research_quality_gate.py` checks dossiers for common failure modes:
+`skills/world-research/scripts/research_quality_gate.py` checks Evidence Audit Projects, and still supports legacy markdown dossiers, for common failure modes:
 
 - deferred central research;
+- synthesis before extraction;
+- missing protocol, claim map, source intake, evidence extraction, audit trail, or final synthesis;
+- load-bearing claims without extraction rows;
+- source prestige or stigma used as a substitute for data/methods;
 - weak third-party aggregators used for central claims;
 - generic viewpoint camps;
 - vague funder summaries;
@@ -58,7 +67,8 @@ Use for mapping debates, narratives, ideologies, and commentary. It requires:
 Run it with:
 
 ```powershell
-python .\skills\world-research\scripts\research_quality_gate.py .\research\example-dossier.md
+python .\skills\world-research\scripts\init_evidence_audit.py .\research\example-topic --question "Does X outweigh Y?"
+python .\skills\world-research\scripts\research_quality_gate.py .\research\example-topic
 ```
 
 The gate is heuristic, not a substitute for judgment, but failures should block delivery unless the work is explicitly marked incomplete.
@@ -89,6 +99,6 @@ After installation, start a new Codex chat. The skills should appear in the avai
 
 ## Design Principle
 
-The user should only need to name the topic. For broad, controversial, historical, scientific, policy, or current-events research, the skills should automatically create a dossier file when a writable workspace exists, audit sources, map real viewpoints, run the preflight gate before delivery, then summarize and link the dossier. If no dossier file is created, the agent should explain why.
+The user should only need to name the topic. For broad, controversial, historical, scientific, economic, policy, or current-events research, the skills should automatically create an Evidence Audit Project when a writable workspace exists, map claims from every relevant viewpoint, extract evidence before synthesis, audit sources by data and method rather than prestige, run the preflight gate before delivery, then summarize and link the project artifacts. If no project folder is created, the agent should explain why.
 
 This repo also includes `AGENTS.md` so new Codex chats opened inside the repository receive the same high-level research workflow instruction even before a skill body is loaded.

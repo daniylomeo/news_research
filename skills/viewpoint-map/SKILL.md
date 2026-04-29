@@ -83,7 +83,7 @@ The goal is to help the user understand how different actors see an issue, what 
 12. Extract and fact-check the strongest factual claims from each major viewpoint.
 13. Compare narratives against the fact base from primary and specialist sources.
 14. Add a short adversarial review: which viewpoint may be underrepresented, over-weighted, or misunderstood.
-15. For broad research dossiers using this skill inside `world-research`, run that skill's preflight gate before delivery. Treat failures about generic viewpoint camps or missing claim checks as blocking.
+15. For broad Evidence Audit Projects using this skill inside `world-research`, run that skill's preflight gate before delivery. Treat failures about generic viewpoint camps, missing claim checks, or missing extraction rows as blocking.
 
 ## Viewpoint Labels
 

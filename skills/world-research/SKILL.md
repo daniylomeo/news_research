@@ -1,27 +1,35 @@
 ---
 name: world-research
-description: Use when researching current events, historical events, geopolitics, policy, institutions, conflicts, social issues, economics, science-in-policy disputes, or other world affairs. For broad, controversial, policy, historical, scientific, or current-events questions, automatically create a research dossier file in the workspace, include source cards and named viewpoint analysis, run the quality gate, then summarize and link the dossier unless the user explicitly asks for a quick chat-only answer.
+description: Use when researching current events, historical events, geopolitics, policy, institutions, conflicts, social issues, economics, science-in-policy disputes, or other world affairs. For broad, controversial, policy, historical, scientific, economic, or current-events questions, automatically create an Evidence Audit Project in the workspace with protocol, claim map, source intake, evidence extraction, case/data audits, viewpoint/lens analysis, quality gate, and only then synthesis unless the user explicitly asks for a quick chat-only answer.
 ---
 
 # World Research
 
-Use this skill to build high-trust research briefings about current events, past events, and history. The default aim is to educate ourselves about the issue and find the best-supported truth, not merely to answer the narrow wording of the prompt.
+Use this skill to build high-trust evidence audits about current events, past events, policy, economics, science-in-policy disputes, and history. The default aim is to educate ourselves about the issue and find the best-supported truth, not merely to answer the narrow wording of the prompt.
 
 ## Non-negotiables
 
-- A polished but shallow dossier is a failed draft. Do not deliver it as a completed answer.
+- A polished but shallow project or dossier is a failed draft. Do not deliver it as a completed answer.
+- For broad, controversial, policy, historical, scientific, economic, or current-events questions, default to an **Evidence Audit Project**, not an essay dossier. Create a folder under `research/<topic-slug>/` with auditable artifacts before synthesis. Use `scripts/init_evidence_audit.py <project-dir> --question "<question>"` when starting a new project.
+- No synthesis before extraction. Do not write a settled conclusion until the load-bearing claims have rows in `evidence-extraction.csv` or have been explicitly marked unauditable/incomplete.
+- Use broad intake but narrow audited claims. First map the world of claims and viewpoints; then identify the load-bearing claims whose truth would change the answer; then audit representative data, studies, cases, and source claims.
+- Apply the source-neutral rule: source status is not evidence. Reputation, institutional prestige, peer review, nonprofit status, outsider status, or "whack job" status affect scrutiny and priors, not the verdict. A dissident source with better data beats a prestigious source with weak, hidden, or non-reproducible data.
+- Treat every source as a claim container, not an authority. Extract the actual claims, data, assumptions, and methods; then decide whether they survive.
+- For policy and economic questions, include an economic/lens module where relevant: Austrian, Chicago/neoclassical, Keynesian, MMT, public choice, Marxian/labor, institutionalist, environmental/localist, industrial-policy, and security/state-capacity perspectives. Use these as diagnostic lenses, not decorative ideology.
 - Treat the user's question as the starting doorway into the issue, not the full boundary of the research. Answer it directly, but also build the surrounding context needed to understand what the answer means.
 - For substantial or controversial topics, produce a holistic issue model before conclusions: history, timeline, institutions, actors, incentives, definitions, mechanisms, data landscape, affected populations, policy choices, tradeoffs, and unknowns.
-- Default to dossier mode for broad, controversial, historical, scientific, policy, or current-events questions whenever a writable workspace exists. Create or update a structured markdown dossier under `research/<topic-slug>.md`, run the quality gate, then give the user a concise guided summary with a file link. Use chat-only full briefing only when no writable workspace exists or the user explicitly asks not to create a file.
-- When the user asks a follow-up question about an existing dossier topic, append the new research as a dated chapter to the original dossier instead of creating a separate file. The chapter must include its own research question, source cards or added source notes, claim-ledger updates, audit trail updates, and quality-gate result, while preserving the original dossier's prior conclusions unless the new evidence revises them.
+- Default to audit-project mode for broad, controversial, historical, scientific, economic, policy, or current-events questions whenever a writable workspace exists. Create or update a structured folder under `research/<topic-slug>/`, run the quality gate on the folder, then give the user a concise guided summary with links to the artifacts. Use chat-only full briefing only when no writable workspace exists or the user explicitly asks not to create files.
+- When the user asks a follow-up question about an existing project, do not append another mini-essay. Add `updates/<YYYY-MM-DD>-<follow-up-slug>.md`, update `claim-map.md`, `source-intake.csv`, `evidence-extraction.csv`, case/data audit files, confidence levels, and `final-synthesis.md` if the follow-up changes the answer. Follow-ups must mutate the evidence model, not just add pages.
 - Default to full briefing depth for broad public-interest questions unless the user explicitly asks for a quick answer. If the topic is too large for one pass, narrow the research boundary before concluding; do not present conclusions that depend on evidence not yet reviewed.
-- For ordinary narrow questions, use standard briefing depth. For substantial public-interest topics, do not treat "I can answer in chat" as a reason to skip dossier mode; the file is part of the quality workflow because it preserves source cards, claim ledgers, case audits, and the audit trail.
-- Do not require the user to ask for dossier mode, source cards, named viewpoints, funder disclosure, contradiction search, self-review, or the quality gate. These are automatic obligations for broad, controversial, historical, scientific, policy, or current-events research. The user should only need to name the topic.
-- Do not deliver "first-pass" dossiers for the user's substantive research questions. Either complete the central work inside a narrowed boundary or mark the file as incomplete/failed and keep revising. Phrases like "first-pass national briefing," "not a full audit," or "does not estimate" are red flags when they refer to central evidence.
+- For ordinary narrow questions, use standard briefing depth. For substantial public-interest topics, do not treat "I can answer in chat" as a reason to skip audit-project mode; the project artifacts are part of the quality workflow because they preserve claim maps, extraction rows, case audits, and the audit trail.
+- Do not require the user to ask for audit-project mode, source intake, evidence extraction, named viewpoints, funder disclosure, contradiction search, self-review, or the quality gate. These are automatic obligations for broad, controversial, historical, scientific, economic, policy, or current-events research. The user should only need to name the topic.
+- Do not deliver "first-pass" projects for the user's substantive research questions. Either complete the central audit inside a narrowed boundary or mark the project incomplete/failed and keep revising. Phrases like "first-pass national briefing," "not a full audit," or "does not estimate" are red flags when they refer to central evidence.
 - For broad comparison questions, decompose large aggregates before judging. Do not compare "America" with "Europe," "the media," "the West," or similar huge categories until the analysis separates meaningful subcases, populations, regions, institutions, and person-types.
 - Do not use "needs deeper review" for evidence that is central to the conclusion. If a source, PDF, filing, dataset, legal argument, local record, or case comparison is integral, inspect it in the first pass before reaching a conclusion. If that cannot be done, lower the conclusion and explicitly state that the answer is not yet complete.
 - Aim for research completeness inside the agreed boundary. "Open questions" are for genuinely unavailable evidence, future developments, or peripheral leads, not for core work that should have been done.
 - Make every major section self-contained. A reader should not encounter a list of claims without examples, citations, mechanism, and explanation on the assumption that another section does the real work.
+- Narrative source summaries are not evidence audits. For every source that materially affects the answer, extract the source into the project artifacts: `source-intake.csv` for identity/incentives/claims, `evidence-extraction.csv` for actual data and method claims, and audit notes for rows, tables, cases, or model specifications. Narrative summaries may explain this work, but they cannot substitute for extraction rows.
+- For causal questions, do not write a narrative "causal synthesis" until completing a causal claim matrix. Each proposed cause needs mechanism, direct evidence, source quality, alternative explanations, counterevidence, confidence, and what would falsify or weaken it. Politically charged causal claims without this evidence chain are workflow failures.
 - Explain the machinery of the issue. Do not merely list technical terms, institutions, actors, or incentives; explain what they are, how they work, why they matter, who controls them, and how they connect to the user's question.
 - Treat historical context and historical analogies with the same rigor as current fact-checking. Do not compress major historical periods into decorative summaries. Explain the relevant chronology, mechanisms, social effects, economic data where available, major scholarly debates, and limits of the analogy.
 - When naming a historical event, movement, document, doctrine, party, law, or institution that is important to the argument, explain it. Do not assume the user already knows what it was, who participated, what happened, why it mattered, or how historians interpret it.
@@ -31,12 +39,12 @@ Use this skill to build high-trust research briefings about current events, past
 - For current events or anything likely to have changed, browse and verify dates before answering.
 - Separate facts, inferences, interpretations, and opinions.
 - Cite sources for material claims, especially dates, numbers, quotes, allegations, legal claims, and causal claims.
-- Dossiers must contain retraceable source links. Source cards, study/data readouts, case audits, viewpoint maps, claim ledgers, and audit trails should link to the actual documents, datasets, filings, reports, or pages used. A dossier with no URLs or source links is a failed draft.
+- Evidence Audit Projects must contain retraceable source links. Source intake, evidence extraction, study/data readouts, case audits, viewpoint maps, claim ledgers, and audit trails should link to the actual documents, datasets, filings, reports, or pages used. A project with no URLs, source links, or extraction rows is a failed draft.
 - Look for disconfirming evidence, missing context, and plausible alternative explanations.
 - Label uncertainty plainly. Do not fill gaps with confident narrative.
 - Make the work reproducible: preserve enough search terms, source links, dates accessed, and reasoning that the user can retrace the path.
 - Use quotes carefully. When a quote matters, find the original transcript/audio/video/document where possible and inspect surrounding context before relying on it.
-- Treat peer review as a starting filter, not proof of quality. When using scientific studies, read past the abstract and inspect what the study actually did: question, design, sample, exposure/intervention, comparator, outcomes, time period, model/specification, effect sizes, uncertainty intervals, confounder handling, missing data, conflicts, limitations, journal quality, replication status, and fit between evidence and claims.
+- Treat peer review as a starting filter, not proof of quality. When using scientific studies, read past the abstract and inspect what the study actually did: question, design, sample, exposure/intervention, comparator, outcomes, time period, model/specification, effect sizes, uncertainty intervals, confounder handling, missing data, conflicts, limitations, journal quality, replication status, and fit between evidence and claims. Put this into extraction rows, not just prose.
 - Treat NGO, nonprofit, think-tank, and advocacy claims as claims, not authority. Verify their evidence, methods, data, sourcing, conflicts, and fit between evidence and conclusions, then identify their major funders when available, with special attention to government, corporate, foundation, and donor-advised funding. A generic funding summary is not enough: list named disclosed funders above the relevant reporting threshold. If a full donor list is not public, say that plainly, list whatever named funders/categories/amounts are disclosed, and treat donor opacity as a source limitation.
 - Treat democracy indices, freedom ratings, human-rights scorecards, corruption indices, country rankings, and similar institutional ratings as analytical products, not facts. Before relying on them, inspect their methodology, indicators, coding process, funders, governance, ideological/institutional incentives, critiques, and whether the rating matches primary evidence.
 - Do not use third-party data aggregators for central quantitative claims when official datasets or original publications are reasonably available. Aggregators can orient the search, but final evidence should come from primary/official datasets, original reports, or a clearly justified specialist source.
@@ -50,41 +58,54 @@ Use this skill to build high-trust research briefings about current events, past
 - For any comparative judgment, include hard counterexamples that might break the thesis. If the answer is "U.S. upside, Europe floor," test it against rich European cases, poor European cases, high-performing U.S. states, weak U.S. states, and different life circumstances before concluding.
 - Apply equal evidentiary grace across comparisons. If one actor receives a distinction between "authoritarian," "illiberal," "racist," "imperial," and "fascist," apply the same distinctions to all actors being compared. Do not call similar behavior fascistic in one case and merely abusive in another without explaining the difference in ideology, movement form, institutional context, intent, scale, or trajectory.
 - When the question alleges hidden purposes, covert action, propaganda, laundering, institutional misconduct, or euphemistic program language, do the deeper audit in the first pass: inspect primary records, award/grant data, implementers, funding chains, country examples, strategic interests, local consent, and concealment indicators before drawing conclusions.
-- When the question depends on concrete projects, facilities, local conflicts, contracts, permits, subsidies, or regulatory decisions, include a first-pass case audit. Sample enough real cases to test the national narrative against ground-level records; do not defer this if the truth depends on implementation.
+- When the question depends on concrete projects, facilities, local conflicts, contracts, permits, subsidies, or regulatory decisions, include an initial case audit. Sample enough real cases to test the national narrative against ground-level records; do not defer this if the truth depends on implementation.
 - For project-, facility-, or implementation-dependent topics, the case audit must inspect concrete named cases with direct records. Each case should include location, actor/developer/operator or agency, status/decision, power/water/money/permit/tariff facts where relevant, direct source links, and what the case proves or does not prove. Broad region summaries like "Virginia," "PJM," or "Ohio" are not enough unless tied to specific orders, dockets, projects, tariffs, or local records.
 - For advocacy, industry, think-tank, NGO, nonprofit, and coalition sources, include funding, ownership, membership, donor disclosure, institutional incentives, or donor opacity notes in the source card and viewpoint map. Do not treat their reports as neutral evidence without this.
 - Policy sections must be evidence-anchored. Each option needs a mechanism, implementation steps, enforcement problem, tradeoffs, serious objections, and at least one source link or case anchor.
-- Dossiers must include a **Quality Gate Result** section reporting the gate command and result. Do not summarize the dossier to the user if the gate reports failures.
+- Evidence Audit Projects must include a **Quality Gate Result** in `final-synthesis.md` reporting the gate command and result. Do not summarize the project to the user as complete if the gate reports failures.
 
-## Research Workflow
+## Evidence Audit Workflow
 
 1. Clarify the research question, time period, geography, actors, and desired output.
-2. Build an issue map before narrowing:
+2. Set the depth contract:
+   - **Quick answer:** chat only; use only when the user asks for speed or a narrow lookup.
+   - **Standard audit:** use for ordinary research questions; create a claim map and limited extraction table if files are useful.
+   - **Full Evidence Audit Project:** default for broad, consequential, controversial, scientific, economic, historical, policy, or current-events questions. Create a folder with protocol, claim map, source intake, evidence extraction, case/data audits, viewpoint/lens analysis, audit trail, and final synthesis.
+3. Initialize the project:
+   - New project: run `scripts/init_evidence_audit.py research/<topic-slug> --question "<question>"`.
+   - Existing project follow-up: add an update file under `updates/`, update the claim/source/extraction artifacts, then revise the synthesis only if evidence changed.
+4. Build an issue and claim universe before narrowing:
    - Direct user questions to answer.
    - Definitions and category boundaries that could change the answer.
    - Historical background and timeline.
    - Main institutions, actors, incentives, and affected populations.
    - Mechanisms or causal pathways proposed by each side.
+   - Mainstream, academic, industry, state, local, dissident, conspiratorial, and ideological claims.
    - Data needed, data quality problems, and likely blind spots.
    - Policy tradeoffs, harms, benefits, and distributional effects.
-3. Build an explanatory map:
+5. Fill `claim-map.md`:
+   - Give each claim a stable `claim_id`.
+   - Mark whether it is load-bearing.
+   - Classify the evidence needed: dataset, official records, local case, study/model, primary text, historical source, expert argument, or viewpoint claim.
+   - State what would confirm, weaken, or falsify the claim.
+6. Build an explanatory map:
    - Define key technical terms, institutions, job categories, financial mechanisms, legal tools, and physical systems.
    - For each important noun, explain what it is, how it works, why it matters, who benefits, who pays, and what can go wrong.
    - Explain the causal chain step by step. Example: not just "transmission upgrades," but what transmission is, why large loads require it, who builds it, how costs are recovered, and why ratepayers may care.
-4. Set the depth contract:
-   - **Quick answer:** use only when the user asks for speed or a narrow lookup.
-   - **Standard briefing:** use for ordinary narrow research questions; include issue context, source map, viewpoint map, and key uncertainties.
-   - **Full research briefing:** use for broad, consequential, controversial, scientific, historical, or policy questions; include source cards, study/data readouts, debate/commentary, contradiction search, and adversarial self-review.
-   - **Dossier mode:** default for broad, consequential, controversial, scientific, historical, policy, or current-events questions when a writable workspace exists; write the longform research notes to `research/<topic-slug>.md`, run `scripts/research_quality_gate.py`, revise until it passes or mark incomplete, and give the user a concise guided summary.
-   - **Follow-up chapter mode:** if the current question clearly extends a dossier already created in this workspace, reopen that original `research/<topic-slug>.md` and append a new `## Chapter: <follow-up question> (<YYYY-MM-DD>)` section near the end before the final Quality Gate Result. Include chapter-specific source notes, study/data readouts, viewpoint or policy updates where relevant, claim-ledger additions, and an audit-trail update. Then rerun the quality gate on the full dossier and update the final Quality Gate Result.
-   - If full coverage is impossible in one response, narrow the research boundary before concluding. Do not answer beyond the evidence actually reviewed.
-5. Create a working claim ledger: known facts, contested claims, open questions, key terms, and claims implied by the user's framing.
-6. Build a source plan using this priority order:
+7. Build a source plan using this priority order, while preserving source neutrality:
    - Primary documents: laws, court filings, official records, transcripts, budgets, datasets, speeches, archived pages, original video/audio, photos with provenance, direct statements.
    - High-quality specialist sources: peer-reviewed work, books from reputable presses, subject-matter experts, professional data shops, local reporters with direct access.
    - Independent corroboration: multiple outlets, local media, wire services, NGO reports, think tanks, watchdog groups, academic commentary.
    - Narrative sources: corporate media, partisan media, ideological journals, influencer commentary, official propaganda, campaign messaging.
-7. For historical claims, comparisons, or analogies, build a historical context module before answering:
+   - Dissident or conspiratorial sources: include when they make factual claims that are influential, evidence-bearing, or challenge institutional consensus. Audit the claim and data; do not dismiss by label.
+8. Fill `source-intake.csv`:
+   - Record source id, title, URL/citation, source type, viewpoint, incentives/funding/ownership, claims made, data access, and whether it is eligible for central evidence.
+9. Fill `evidence-extraction.csv` before synthesis:
+   - Each load-bearing claim needs extraction rows or an explicit "not auditable with available evidence" row.
+   - Record claim id, source id, exact claim, evidence location (page/table/row/case), extracted data or quote, method notes, assumptions, exclusions, uncertainty, our critique, status, and confidence.
+   - For datasets, inspect codebooks, rows/cases, ambiguous coding, missing data, and sensitivity to definitions when accessible.
+   - For studies, inspect instruments, measures, model specifications, effect sizes, uncertainty, robustness, and whether conclusions follow.
+10. For historical claims, comparisons, or analogies, build a historical context module before answering:
    - Establish dates, geography, sequence, and definitions.
    - Identify the relevant mechanisms, not just surface similarities.
    - Use historians, economic historians, primary historical documents, historical datasets, and reputable books or papers where possible.
@@ -92,46 +113,49 @@ Use this skill to build high-trust research briefings about current events, past
    - Explain any named events, movements, doctrines, parties, leaders, laws, and institutions that are necessary to the comparison.
    - For movements or doctrines, explain the argument from primary sources where possible: what they claimed was wrong, who they blamed, what they wanted, how they justified power, and what they did in practice.
    - Compare similarities and differences explicitly; do not imply that a past analogy proves the present case.
-8. For hidden-purpose or institutional-misconduct questions, build an audit sample before answering:
+11. For hidden-purpose or institutional-misconduct questions, build an audit sample before answering:
    - Choose relevant countries, programs, or cases based on the user's claim, money involved, historical controversy, and availability of primary records.
    - Inspect award/grant records, congressional or inspector-general reports, court records, declassified files, budgets, program descriptions, implementer pages, and local reporting.
    - Classify each sampled item by stated purpose, actual activities, implementer, subimplementers if available, funding chain, U.S. strategic interest, local consent, transparency, concealment, and documented outcomes or harms.
    - Do not use ordinary sector labels as proof of benign purpose when the allegation is that labels may obscure political or covert functions.
-9. For project-, place-, or implementation-dependent questions, build a case audit before answering:
+12. For project-, place-, or implementation-dependent questions, build a case audit before answering:
    - Choose representative cases across geography, project size, political context, and outcome.
    - Inspect primary local records when available: permits, zoning minutes, interconnection requests, utility filings, water agreements, tax-incentive agreements, environmental permits, litigation, community-benefit agreements, and local budgets.
    - For each case, identify the developer/operator, facility type, promised investment/jobs, permanent jobs, power demand, water demand, public subsidies, ratepayer exposure, local tax effects, land-use impacts, public process, and current status.
    - Use the case audit to test whether national claims survive contact with local implementation.
    - Do not count broad regional summaries as cases unless they are tied to specific records such as a docket, tariff order, permit, local vote, project filing, or named project.
-10. Collect sources and make a source card for each important source:
-   - Title, author/organization, date, URL or citation.
-   - Source type and proximity to event.
-   - Direct link to the document, dataset, page, filing, or archive used. Do not rely on named-source references without URLs when web sources are available.
-   - What parts were actually read or inspected.
-   - Evidence offered and method used.
-   - Ownership, funding, institutional incentives, or conflicts where relevant.
-   - For NGOs/nonprofits/think tanks: methods, data, source trail, claim support, named disclosed funders above the relevant reporting threshold, especially government agencies, corporate donors, major foundations, and industry-linked support. Do not substitute vague phrases like "funded by individuals, foundations, and companies" for named funder disclosure; if names are unavailable, record the opacity.
-   - For ratings, indices, and scorecards: funders, governance, methodology, indicators, coding process, country experts or coders, uncertainty handling, known critiques, and primary evidence supporting or contradicting the rating.
-   - For scientific studies: research question, design, population/sample, exposure/intervention, comparator, outcome measures, time period, effect sizes, uncertainty intervals, controls/confounders, missing data, model choices, sensitivity analyses, data/code availability, limitations, conflicts of interest, journal/publisher reputation, and replication or retraction concerns.
-   - For historical sources: author expertise, period covered, primary-source base, school of interpretation, evidence used, major scholarly disputes, and limits of the analogy or comparison.
-   - Apparent viewpoint or ideological tradition where relevant.
-   - Limits, omissions, and what it cannot prove.
-11. For any source that materially affects the answer, write the necessary readout before using its conclusion:
+13. For any source that materially affects the answer, write the necessary readout before using its conclusion:
    - For PDFs, reports, filings, or long documents: read the executive summary, methodology, key evidence sections, limitations, and rebuttal-relevant sections; do not rely only on a press release or headline.
    - What question the authors tested.
    - What data and method they used.
    - What result they actually found, including magnitude and uncertainty.
    - What the result does and does not prove.
    - The strongest methodological critique and whether it changes confidence.
-12. Triangulate facts across independent evidence. Prefer independent confirmation over repetition of the same wire story, press release, or anonymous source.
-13. Map perspectives beyond U.S. party categories when relevant: liberal, conservative, socialist, libertarian, Austrian/free-market, nationalist, realist, internationalist, religious, labor, business, technocratic, populist, local/community, state/security, anti-colonial, environmental, feminist, institutionalist, dissident, and other topic-specific traditions.
-14. Build the debate/commentary map:
+14. For causal questions, build a causal claim matrix before the narrative:
+   - Proposed cause or mechanism.
+   - Evidence that supports it, with direct source links.
+   - Evidence quality and whether the evidence is descriptive, correlational, quasi-experimental, experimental, causal, or only interpretive.
+   - Alternative explanations and confounders.
+   - Counterevidence and hard cases.
+   - Confidence level and what would change it.
+   - Do not use phrases like "X made Y feel," "X caused Y," "this explains," "the common pathway is," or "the feedback loop is" unless the matrix supports the claim and the prose cites the relevant evidence.
+15. Triangulate facts across independent evidence. Prefer independent confirmation over repetition of the same wire story, press release, or anonymous source.
+16. Map perspectives beyond U.S. party categories when relevant: liberal, conservative, socialist, libertarian, Austrian/free-market, nationalist, realist, internationalist, religious, labor, business, technocratic, populist, local/community, state/security, anti-colonial, environmental, feminist, institutionalist, dissident, conspiratorial, and other topic-specific traditions.
+17. For policy/economic questions, build an economic and ideological lens check:
+   - Austrian/free-market: dispersed knowledge, price signals, malinvestment, intervention effects.
+   - Chicago/neoclassical: incentives, externalities, elasticities, opportunity cost, welfare tradeoffs.
+   - Keynesian: demand, employment, infrastructure, public investment, coordination failures.
+   - MMT: real resource constraints versus financial constraints, inflation, public capacity.
+   - Public choice: rent seeking, capture, concentrated benefits, diffuse costs.
+   - Marxian/labor: ownership of gains, class power, worker displacement, bargaining power.
+   - Institutionalist/localist/environmental: rules, agencies, contracts, local consent, ecological limits.
+18. Build the debate/commentary map:
    - Identify major voices and dissident voices, including serious critics outside mainstream institutions.
    - Name actual representatives where possible, not generic camps.
    - Steelman each argument before critique.
    - Explain each side's moral frame, causal theory, evidence base, institutional or material incentives, and best evidence.
    - Separate what the side gets right, what it overstates, what it ignores, and what remains unknowable.
-15. Analyze policy options when recommendations are relevant:
+19. Analyze policy options when recommendations are relevant:
    - State the problem each option tries to solve.
    - Explain the mechanism by which it is supposed to work.
    - Identify prerequisites and implementation steps.
@@ -140,19 +164,23 @@ Use this skill to build high-trust research briefings about current events, past
    - Include serious ideological and economic counterarguments, especially public-choice concerns about regulatory capture, Austrian concerns about planning and dispersed knowledge, libertarian concerns about property rights and state coercion, and left/labor/environmental concerns about externalities and corporate power.
    - Identify failure modes and who bears the cost if the policy fails.
    - Distinguish "my assessment" from settled fact.
-16. Fact-check the viewpoint map:
+20. Fact-check the viewpoint map:
    - Identify each major voice's strongest factual claims.
    - Check those claims against the source base with the same rigor as standalone claims.
    - Separate accurate criticism, exaggerated rhetoric, unsupported claims, and value judgments.
-17. If using a rubric, typology, or scorecard:
+21. If using a rubric, typology, or scorecard:
     - Define the scoring scale and threshold.
     - Provide evidence notes for each score or collapse the table into prose if evidence cannot fit.
     - Test the strongest counterexample against the rubric.
     - Explain why similar-looking cases are classified differently.
-18. Run a contradiction search before finalizing: search for the strongest evidence against the emerging conclusion, including critiques from serious opposing viewpoints.
-19. Run the preflight gate before finalizing, even if the user did not ask for it. For dossier mode, run `scripts/research_quality_gate.py <dossier-path>` and revise until it reports no failures, or mark the dossier as a failed/incomplete draft. For chat-only full briefings, apply `references/preflight-gate.md` manually before answering and explain why no dossier file was created.
-20. Produce the answer with uncertainty labels, source notes, and a "what would change this assessment" section when appropriate.
-21. End with an adversarial self-review for substantial research: what could be wrong, what sources may be missing, and what assumptions are doing work. Do not use this section to excuse missing central research; complete central research first or narrow the answer.
+22. Run a contradiction search before finalizing: search for the strongest evidence against the emerging conclusion, including critiques from serious opposing viewpoints.
+23. Write `final-synthesis.md` only after extraction:
+   - Cite audited claim ids and source ids.
+   - Separate what survived, what failed, what is unknown, and what would change the answer.
+   - State which load-bearing claims remain unaudited or inaccessible.
+24. Run the preflight gate before finalizing, even if the user did not ask for it. For audit projects, run `scripts/research_quality_gate.py <project-dir>` and revise until it reports no failures, or mark the project as incomplete/failed. For legacy dossier files, run it on the markdown file. For chat-only full briefings, apply `references/preflight-gate.md` manually before answering and explain why no project folder was created.
+25. Produce the answer with uncertainty labels, source notes, and a "what would change this assessment" section when appropriate.
+26. End with an adversarial self-review for substantial research: what could be wrong, what sources may be missing, and what assumptions are doing work. Do not use this section to excuse missing central research; complete central research first or narrow the answer.
 
 ## Output Standard
 
@@ -170,7 +198,7 @@ Default briefing format:
 - **Historical Explainers:** explain important named events, movements, documents, doctrines, parties, and institutions in enough depth that the user can understand the comparison without outside background.
 - **Study And Data Readouts:** for key studies, estimates, and datasets, explain the methodology, data, effect size, uncertainty, limitations, and how much weight the evidence deserves.
 - **Institutional Rating Readouts:** for democracy/freedom/human-rights/corruption/risk indices or scorecards, explain methodology, funding, governance, critiques, and primary evidence checks before relying on the rating.
-- **Source Map:** primary, specialist, corporate media, advocacy/ideological, and unknown/low-quality sources.
+- **Source And Evidence Audit:** source intake plus extraction rows for primary, specialist, corporate media, advocacy/ideological, and unknown/low-quality sources, with full-source status, method/data readout, findings, validity appraisal, source weight, and claim-level audit status.
 - **Viewpoint Map:** major interpretations and what each gets right or misses.
 - **Debate And Commentary:** mainstream, institutional, ideological, local, international, and dissident voices; steelman each serious argument; fact-check key factual claims.
 - **Evidence For And Against:** when weighing a central claim, each point should include concrete examples, source links, and explanation. Do not use bare numbered assertions.
@@ -181,29 +209,27 @@ Default briefing format:
 - **Open Questions:** genuinely unavailable evidence, future developments, or peripheral leads; do not put central missing work here.
 - **Audit Trail:** key searches, documents checked, dates accessed, and unresolved source gaps when the research is substantial.
 
-For dossier mode, create a markdown file under a project research folder, such as `research/<topic-slug>.md`, with these sections. This is the default for broad, controversial, historical, scientific, policy, and current-events research when a writable workspace exists:
+For audit-project mode, create a folder under `research/<topic-slug>/` with these artifacts:
 
-- Executive summary.
-- Research boundary and questions.
-- Explainer: how the system works.
-- Chronology and historical context.
-- Source cards.
-- Study and data readouts.
-- Case or project audits.
-- Viewpoint and commentary map.
-- Policy options and counterarguments.
-- Claim ledger.
-- Open questions limited to genuinely unavailable evidence, future developments, or peripheral leads.
-- Audit trail.
-- Quality Gate Result.
+- `protocol.md`: question, scope, definitions, inclusion/exclusion rules, done criteria.
+- `claim-map.md`: broad claim universe and load-bearing claims.
+- `source-intake.csv`: sources from all viewpoints, with incentives and data access.
+- `evidence-extraction.csv`: exact extracted evidence, method notes, critique, status, confidence.
+- `case-audits/`: concrete case/project/local/source audits when implementation matters.
+- `data-audits/`: dataset/codebook/reproduction notes when quantitative claims matter.
+- `lens-review.md`: named viewpoint and economic/ideological lens review where relevant.
+- `sensitivity-tests.md`: recoding, alternative definitions, counterexamples, robustness checks.
+- `audit-trail.md`: searches, documents checked, access dates, and unresolved gaps.
+- `updates/`: follow-up questions as evidence-model updates, not mini-essays.
+- `final-synthesis.md`: only after audited evidence exists; cite claim ids/source ids.
 
-For follow-up questions on the same topic, keep the original dossier file and append each follow-up as a dated chapter before the final **Quality Gate Result** section. Do not overwrite earlier analysis; add a short revision note when the new chapter changes a prior conclusion, confidence level, source assessment, or claim-ledger status.
+For follow-up questions on the same topic, keep the original project folder. Add a dated update file and change the claim/source/extraction/case/synthesis artifacts as needed. Do not overwrite earlier analysis; add revision notes when the new evidence changes a prior conclusion, confidence level, source assessment, or claim status.
 
-Before finalizing a dossier, scan each major section and remove or rewrite any paragraph that is only a compressed assertion. Replace it with evidence, explanation, examples, citations, and counterargument, or omit it.
+Before finalizing a project or legacy dossier, scan each major section and remove or rewrite any paragraph that is only a compressed assertion. Replace it with evidence, explanation, examples, citations, and counterargument, or omit it.
 
-Then run `scripts/research_quality_gate.py <dossier-path>`. Treat any failure as a block on delivery unless the final response clearly says the dossier is incomplete or failed.
+Then run `scripts/research_quality_gate.py <project-dir-or-dossier-path>`. Treat any failure as a block on delivery unless the final response clearly says the project is incomplete or failed.
 
-If the gate passes but the dossier has no retraceable links, thin source cards, or source names without document URLs, treat that as a judgment failure and revise anyway.
+If the gate passes but the project has no retraceable links, thin extraction rows, or source names without document URLs, treat that as a judgment failure and revise anyway.
 
 For the complete manual gate, read `references/preflight-gate.md`.
 
@@ -230,7 +256,7 @@ Before finalizing, ask:
 - Are the most important claims backed by primary or near-primary evidence?
 - Did I distinguish evidence from interpretation?
 - Did I educate the user about the issue as a whole, not merely answer the narrowest version of the prompt?
-- If the topic is too large for chat, did I use or suggest dossier mode instead of compressing away the most important context?
+- If the topic is too large for chat, did I use audit-project mode instead of compressing away the most important context?
 - Did I complete the central research inside the stated boundary, instead of listing core missing work at the end?
 - Does every major section stand on its own with evidence, examples, citations, and reasoning?
 - Did I define the issue's key terms, mechanisms, actors, timeline, data limits, and tradeoffs?
@@ -259,7 +285,7 @@ Before finalizing, ask:
 - Did I preserve enough of an audit trail for the user to retrace the research?
 - Did I include an adversarial self-review for major conclusions?
 - If the topic involved hidden purposes or euphemistic labels, did I inspect primary award/program/case records in the first pass rather than deferring that work?
-- If the topic depended on concrete projects, local implementation, permits, subsidies, or contracts, did I include a first-pass case audit rather than naming it as a limitation?
+- If the topic depended on concrete projects, local implementation, permits, subsidies, or contracts, did I include an initial case audit rather than naming it as a limitation?
 
 ## Reference Standards
 
