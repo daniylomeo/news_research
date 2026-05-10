@@ -14,12 +14,15 @@ Use for broad research briefings and Evidence Audit Projects. It requires:
 - broad claim intake before conclusions;
 - source-neutral evidence evaluation, where prestige and stigma affect scrutiny but not truth;
 - extraction tables for load-bearing claims before synthesis;
+- one coherent `research-brief.md` as the main reader-facing dossier, with small supporting tables rather than file sprawl;
 - mechanism explanations for systems, institutions, money flows, incentives, and tradeoffs;
 - historical context with real depth when history matters;
 - primary and official sources where available;
 - source intake and evidence extraction for major evidence;
+- source-cache manifest records for load-bearing sources;
 - NGO, nonprofit, think-tank, advocacy, rating, and index audits;
 - economic and ideological lens checks for policy/economic questions;
+- current, issue-specific economists or active institutions for economic lens claims rather than school summaries from model memory;
 - named debate/commentary maps, not generic "both sides" placeholders;
 - case/data audits and sensitivity tests where implementation or coding matters;
 - hard counterexamples and adversarial self-review;
@@ -54,7 +57,7 @@ Use for mapping debates, narratives, ideologies, and commentary. It requires:
 
 - deferred central research;
 - synthesis before extraction;
-- missing protocol, claim map, source intake, evidence extraction, audit trail, or final synthesis;
+- missing unified brief, source table, extraction table, source-cache manifest, or adversarial evaluation;
 - load-bearing claims without extraction rows;
 - source prestige or stigma used as a substitute for data/methods;
 - weak third-party aggregators used for central claims;
@@ -99,6 +102,6 @@ After installation, start a new Codex chat. The skills should appear in the avai
 
 ## Design Principle
 
-The user should only need to name the topic. For broad, controversial, historical, scientific, economic, policy, or current-events research, the skills should automatically create an Evidence Audit Project when a writable workspace exists, map claims from every relevant viewpoint, extract evidence before synthesis, audit sources by data and method rather than prestige, run the preflight gate before delivery, then summarize and link the project artifacts. If no project folder is created, the agent should explain why.
+The user should only need to name the topic. For broad, controversial, historical, scientific, economic, policy, or current-events research, the skills should automatically create an Evidence Audit Project when a writable workspace exists, build a coherent `research-brief.md`, map claims from every relevant viewpoint, extract evidence before synthesis, audit sources by data and method rather than prestige, preserve source access in `source-cache/manifest.csv`, run the preflight gate before delivery, then summarize and link the project artifacts. If no project folder is created, the agent should explain why.
 
 This repo also includes `AGENTS.md` so new Codex chats opened inside the repository receive the same high-level research workflow instruction even before a skill body is loaded.
