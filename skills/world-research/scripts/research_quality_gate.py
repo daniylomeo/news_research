@@ -285,14 +285,34 @@ EVALUATOR_REQUIRED_TERMS = [
 ]
 
 UNIFIED_PROJECT_REQUIRED_FILES = [
-    "research-brief.md",
     "sources.csv",
     "extractions.csv",
     "source-cache/manifest.csv",
     "adversarial-evaluation.md",
 ]
 
-UNIFIED_BRIEF_REQUIRED_SECTIONS = [
+WRITER_PACKET_REQUIRED_SECTIONS = [
+    "Question And Boundary",
+    "Orientation",
+    "Timeline",
+    "System Explainer",
+    "Evidence Backbone",
+    "Live Viewpoints",
+    "Causal Models",
+    "Emerging Tensions",
+    "Angle Readiness",
+    "Claims To Avoid",
+    "So What?",
+    "Reporting Plan",
+    "Writer's Current Position",
+    "Bias And Symmetry Check",
+    "Hostile Editor Review",
+    "Unknowns And What Would Change The Assessment",
+    "Quality Gate Result",
+    "Expert Evaluator Result",
+]
+
+LEGACY_BRIEF_REQUIRED_SECTIONS = [
     "Question And Boundary",
     "Bottom Line",
     "Timeline",
@@ -336,6 +356,10 @@ EXPERT_EVALUATOR_REQUIRED_TERMS = [
     "counterargument handling",
     "economic-perspective depth",
     "ideological symmetry",
+    "live-viewpoint grounding",
+    "angle readiness",
+    "so-what test",
+    "reporting plan",
     "reader coherence",
     "final-answer usefulness",
 ]
@@ -445,9 +469,16 @@ def has_heading(text: str, expected: str) -> bool:
 
 def section_body(text: str, expected: str) -> str:
     expected_lower = expected.lower()
-    for title, body in section_bodies(text):
+    hs = headings(text)
+    for idx, (level, title, start) in enumerate(hs):
         if title.lower().startswith(expected_lower):
-            return body
+            body_start = text.find("\n", start)
+            body_end = len(text)
+            for next_level, _, next_start in hs[idx + 1 :]:
+                if next_level <= level:
+                    body_end = next_start
+                    break
+            return text[body_start:body_end]
     return ""
 
 
@@ -542,19 +573,34 @@ def table_data_rows(text: str) -> int:
     return max(0, rows - 2) if rows >= 2 else 0
 
 
+def unified_brief_path(path: Path) -> Path:
+    writer_packet = path / "writer-research-packet.md"
+    if writer_packet.exists():
+        return writer_packet
+    return path / "research-brief.md"
+
+
 def is_unified_project(path: Path) -> bool:
-    return any((path / name).exists() for name in ("research-brief.md", "sources.csv", "extractions.csv"))
+    return any((path / name).exists() for name in ("writer-research-packet.md", "research-brief.md", "sources.csv", "extractions.csv"))
 
 
 def check_unified_project(path: Path) -> int:
     findings: list[tuple[str, str, str]] = []
     all_text = project_text(path)
 
-    brief = path / "research-brief.md"
+    brief = unified_brief_path(path)
+    is_writer_packet = brief.name == "writer-research-packet.md"
     sources_csv = path / "sources.csv"
     extractions_csv = path / "extractions.csv"
     cache_manifest = path / "source-cache" / "manifest.csv"
     adversarial_eval = path / "adversarial-evaluation.md"
+
+    if not brief.exists():
+        findings.append(("FAIL", "project", "missing required artifact: writer-research-packet.md"))
+    elif brief.stat().st_size < 40:
+        findings.append(("FAIL", brief.name, "artifact is empty or too thin"))
+    elif not is_writer_packet:
+        findings.append(("WARN", brief.name, "legacy research-brief.md detected; new projects should use writer-research-packet.md"))
 
     for name in UNIFIED_PROJECT_REQUIRED_FILES:
         target = path / name
@@ -683,23 +729,38 @@ def check_unified_project(path: Path) -> int:
         brief_text = brief.read_text(encoding="utf-8", errors="ignore")
         brief_lower = brief_text.lower()
         if "todo" in brief_lower:
-            findings.append(("FAIL", brief.name, "research brief still contains TODO placeholders"))
-        if "pending" in brief_lower and ("quality gate result" in brief_lower or "expert evaluator result" in brief_lower):
-            findings.append(("FAIL", brief.name, "quality gate or expert evaluator result is still pending"))
+            findings.append(("FAIL", brief.name, "main packet still contains TODO placeholders"))
+        if "parser issue" in brief_lower:
+            findings.append(("FAIL", brief.name, "main packet reports a parser/gate issue; do not mark deliverable until the real installed gate passes"))
         quality_body = section_body(brief_text, "Quality Gate Result")
+        expert_body = section_body(brief_text, "Expert Evaluator Result")
+        pending_result_re = re.compile(r"^\s*(?:pending\.?|[-*]\s*[^:\n]+:\s*pending\b|[^:\n]+:\s*pending\b)", flags=re.IGNORECASE | re.MULTILINE)
+        if pending_result_re.search(quality_body) or pending_result_re.search(expert_body):
+            findings.append(("FAIL", brief.name, "quality gate or expert evaluator result is still pending"))
         if re.search(r"\b(PostgreSQL|pgAdmin)\b", quality_body, flags=re.IGNORECASE):
             findings.append(("FAIL", "Quality Gate Result", "quality gate command appears to cite an unrelated runtime path"))
         if quality_body and "research_quality_gate.py" not in quality_body:
             findings.append(("FAIL", "Quality Gate Result", "quality gate result does not include the gate command"))
-        if re.search(r"\bstatus:\s*incomplete\b|\bdeliverability:\s*incomplete\b", brief_text, flags=re.IGNORECASE):
-            findings.append(("FAIL", brief.name, "research brief still marks itself incomplete"))
+        if re.search(r"\b[1-9]\d*\s+fail\(s\)|\bFAIL:|\bgate result:\s*fail|\breported\s+fail", quality_body, flags=re.IGNORECASE):
+            findings.append(("FAIL", "Quality Gate Result", "quality gate section reports a failing gate result"))
+        if re.search(r"^\s*(?:status|deliverability|deliverability status|research readiness)\s*:\s*incomplete\b", brief_text, flags=re.IGNORECASE | re.MULTILINE):
+            findings.append(("FAIL", brief.name, "main packet still marks itself incomplete"))
         if not re.search(r"\bdeliverability status:\s*(deliverable|excellent)\b|\bdeliverability:\s*(deliverable|excellent)\b", brief_text, flags=re.IGNORECASE):
-            findings.append(("FAIL", brief.name, "brief lacks deliverable/excellent deliverability status"))
+            findings.append(("FAIL", brief.name, "main packet lacks deliverable/excellent deliverability status"))
+        if is_writer_packet:
+            if not re.search(r"\bresearch readiness:\s*(usable|strong)\b", brief_text, flags=re.IGNORECASE):
+                findings.append(("FAIL", brief.name, "writer packet must declare Research readiness: usable or strong before delivery"))
+            if not re.search(r"\bwriting readiness:\s*(weak|explanatory-only|promising|ready)\b", brief_text, flags=re.IGNORECASE):
+                findings.append(("FAIL", brief.name, "writer packet must declare Writing readiness: weak, explanatory-only, promising, or ready before delivery"))
+            for phrase in ("expert evaluator", "research readiness", "writing readiness", "deliverability status"):
+                if phrase not in expert_body.lower():
+                    findings.append(("FAIL", "Expert Evaluator Result", f"expert evaluator result lacks field: {phrase}"))
         if prose_words(brief_text) < 1200:
-            findings.append(("FAIL", brief.name, "research brief is too thin to be a coherent final output"))
+            findings.append(("FAIL", brief.name, "main packet is too thin to be a coherent final output"))
 
         positions: list[int] = []
-        for section in UNIFIED_BRIEF_REQUIRED_SECTIONS:
+        required_sections = WRITER_PACKET_REQUIRED_SECTIONS if is_writer_packet else LEGACY_BRIEF_REQUIRED_SECTIONS
+        for section in required_sections:
             if not has_heading(brief_text, section):
                 findings.append(("FAIL", brief.name, f"missing required section: {section}"))
             else:
@@ -709,18 +770,89 @@ def check_unified_project(path: Path) -> int:
         if positions != sorted(positions):
             findings.append(("FAIL", brief.name, "required sections are out of the expected reader-coherence order"))
         if not re.search(r"\bC\d+\b", brief_text):
-            findings.append(("FAIL", brief.name, "research brief does not cite claim ids"))
+            findings.append(("FAIL", brief.name, "main packet does not cite claim ids"))
         if not re.search(r"\bS\d+\b", brief_text):
-            findings.append(("FAIL", brief.name, "research brief does not cite source ids"))
+            findings.append(("FAIL", brief.name, "main packet does not cite source ids"))
         unsupported_claim_ids = sorted(claim_id for claim_id in set(re.findall(r"\bC\d+\b", brief_text)) if claim_id not in extracted_claim_ids)
         unsupported_source_ids = sorted(source_id for source_id in set(re.findall(r"\bS\d+\b", brief_text)) if source_id not in extracted_source_ids)
         if unsupported_claim_ids:
-            findings.append(("FAIL", brief.name, f"brief cites claim ids without extraction support: {', '.join(unsupported_claim_ids)}"))
+            findings.append(("FAIL", brief.name, f"main packet cites claim ids without extraction support: {', '.join(unsupported_claim_ids)}"))
         if unsupported_source_ids:
-            findings.append(("FAIL", brief.name, f"brief cites source ids without extraction support: {', '.join(unsupported_source_ids)}"))
+            findings.append(("FAIL", brief.name, f"main packet cites source ids without extraction support: {', '.join(unsupported_source_ids)}"))
 
         if PREDICTION_WORD_RE.search(brief_text) and not re.search(r"assumption chain|causal model|causal pipeline|evidence pipeline", brief_text, flags=re.IGNORECASE):
             findings.append(("FAIL", brief.name, "predictive/evaluative language requires an assumption chain, causal model, or evidence pipeline"))
+
+        if is_writer_packet:
+            evidence_body = section_body(brief_text, "Evidence Backbone")
+            for term in ("claim map", "source readouts", "extraction summary"):
+                if term not in evidence_body.lower():
+                    findings.append(("FAIL", "Evidence Backbone", f"missing evidence-backbone component: {term}"))
+
+            causal_body = section_body(brief_text, "Causal Models")
+            for phrase in ("cause or mechanism", "evidence for", "evidence against", "alternatives", "confidence"):
+                if phrase not in causal_body.lower():
+                    findings.append(("FAIL", "Causal Models", f"causal model lacks field: {phrase}"))
+
+            tension_body = section_body(brief_text, "Emerging Tensions")
+            for phrase in ("tension", "why it matters", "evidence", "resolve"):
+                if phrase not in tension_body.lower():
+                    findings.append(("FAIL", "Emerging Tensions", f"emerging tensions section lacks field: {phrase}"))
+            if prose_words(tension_body) < 90:
+                findings.append(("FAIL", "Emerging Tensions", "emerging tensions section is too thin to reveal useful article tensions"))
+
+            live_body = section_body(brief_text, "Live Viewpoints")
+            if not re.search(r"\bS\d+\b", live_body):
+                findings.append(("FAIL", "Live Viewpoints", "live viewpoint map cites no source ids"))
+            live_named_count = len(re.findall(r"\b[A-Z][a-z]+ [A-Z][a-z]+\b|\b(?:DOJ|FTC|SEC|IMF|OECD|NBER|World Bank|Federal Reserve|Mises Institute|Cato Institute|Brookings Institution|Economic Policy Institute|American Enterprise Institute)\b", live_body))
+            if live_named_count < 2:
+                findings.append(("FAIL", "Live Viewpoints", "viewpoint map lacks enough named current people, institutions, publications, or movements"))
+            for phrase in ("actual argument", "evidence", "what they get right", "overstate"):
+                if phrase not in live_body.lower():
+                    findings.append(("FAIL", "Live Viewpoints", f"viewpoint map lacks field: {phrase}"))
+
+            angle_body = section_body(brief_text, "Angle Readiness")
+            angle_sections = [(title, body) for title, body in split_subsections(angle_body) if title.lower().startswith("angle")]
+            if not angle_sections:
+                findings.append(("FAIL", "Angle Readiness", "writer packet needs at least one explicit angle readiness subsection"))
+            for title, body in angle_sections:
+                if prose_words(body) < 80:
+                    findings.append(("FAIL", f"Angle Readiness: {title}", "angle readiness note is too thin to evaluate"))
+                for phrase in ("why it might be interesting", "evidence currently supporting", "evidence missing", "strongest counterargument", "readiness"):
+                    if phrase not in body.lower():
+                        findings.append(("FAIL", f"Angle Readiness: {title}", f"angle lacks field: {phrase}"))
+                if re.search(r"\breadiness:\s*ready\b", body, flags=re.IGNORECASE) and not (re.search(r"\bC\d+\b", body) and re.search(r"\bS\d+\b", body)):
+                    findings.append(("FAIL", f"Angle Readiness: {title}", "ready angle must cite claim and source ids"))
+            if re.search(r"\bwriting readiness:\s*ready\b", brief_text, flags=re.IGNORECASE) and not re.search(r"\breadiness:\s*ready\b", angle_body, flags=re.IGNORECASE):
+                findings.append(("FAIL", "Angle Readiness", "Writing readiness is ready but no angle is marked ready"))
+
+            claims_avoid_body = section_body(brief_text, "Claims To Avoid")
+            if prose_words(claims_avoid_body) < 90:
+                findings.append(("FAIL", "Claims To Avoid", "claims-to-avoid section is too thin; identify tempting claims and evidence needed"))
+            if "what evidence would be needed" not in claims_avoid_body.lower() and "evidence would be needed" not in claims_avoid_body.lower():
+                findings.append(("FAIL", "Claims To Avoid", "section must state what evidence would be needed before making avoided claims"))
+
+            so_what_body = section_body(brief_text, "So What?")
+            for phrase in ("reader care", "what changes", "uncomfortable", "larger system"):
+                if phrase not in so_what_body.lower():
+                    findings.append(("FAIL", "So What?", f"So What stress test lacks: {phrase}"))
+
+            reporting_body = section_body(brief_text, "Reporting Plan")
+            for phrase in ("source/document to get", "why it matters", "claim it would test", "where to find", "how it could change"):
+                if phrase not in reporting_body.lower():
+                    findings.append(("FAIL", "Reporting Plan", f"reporting plan lacks field: {phrase}"))
+            if table_data_rows(reporting_body) < 2:
+                findings.append(("FAIL", "Reporting Plan", "reporting plan needs at least two concrete document/interview/data targets"))
+
+            editor_body = section_body(brief_text, "Hostile Editor Review")
+            for phrase in ("research readiness", "writing readiness", "strongest objection", "unsupported load-bearing", "missing documents", "counterexample", "ideological bias", "required revisions"):
+                if phrase not in editor_body.lower():
+                    findings.append(("FAIL", "Hostile Editor Review", f"hostile editor review lacks field: {phrase}"))
+
+            writer_position_body = section_body(brief_text, "Writer's Current Position")
+            for phrase in ("current thesis", "confidence", "survived", "failed", "unknown"):
+                if phrase not in writer_position_body.lower():
+                    findings.append(("FAIL", "Writer's Current Position", f"writer position lacks field: {phrase}"))
 
         if ECONOMIC_TOPIC_RE.search(all_text):
             lens_source_rows = [
@@ -741,7 +873,7 @@ def check_unified_project(path: Path) -> int:
 
             econ_body = section_body(brief_text, "Economic Perspectives")
             if not econ_body:
-                findings.append(("FAIL", brief.name, "economic/policy topic requires an Economic Perspectives section in the main brief"))
+                findings.append(("FAIL", brief.name, "economic/policy topic requires an Economic Perspectives section in the main packet"))
             else:
                 present = [term for term in ECONOMIC_LENS_TERMS if term in econ_body.lower()]
                 if len(present) < 5:
@@ -787,14 +919,14 @@ def check_unified_project(path: Path) -> int:
             child.relative_to(path).as_posix()
             for child in path.rglob("*.md")
             if child.is_file()
-            and child.name not in {"research-brief.md", "adversarial-evaluation.md"}
+            and child.name not in {"writer-research-packet.md", "research-brief.md", "adversarial-evaluation.md"}
             and not child.relative_to(path).as_posix().startswith(("appendices/", "updates/"))
         ]
         unreferenced = [name for name in md_files if name not in brief_text]
         if len(unreferenced) > 3:
-            findings.append(("FAIL", "artifact sprawl", f"too many markdown artifacts not referenced from research-brief.md: {', '.join(unreferenced)}"))
+            findings.append(("FAIL", "artifact sprawl", f"too many markdown artifacts not referenced from the main packet: {', '.join(unreferenced)}"))
         elif unreferenced:
-            findings.append(("WARN", "artifact sprawl", f"markdown artifacts are not referenced from research-brief.md: {', '.join(unreferenced)}"))
+            findings.append(("WARN", "artifact sprawl", f"markdown artifacts are not referenced from the main packet: {', '.join(unreferenced)}"))
 
     if adversarial_eval.exists():
         eval_text = adversarial_eval.read_text(encoding="utf-8", errors="ignore")

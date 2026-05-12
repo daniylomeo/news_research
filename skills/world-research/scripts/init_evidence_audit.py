@@ -114,14 +114,16 @@ def main() -> int:
     question = args.question.strip() or "TODO: state the research question"
 
     write_if_missing(
-        project / "research-brief.md",
-        f"""# Research Brief
+        project / "writer-research-packet.md",
+        f"""# Writer Research Packet
 
 Created: {today}
 
-Status: incomplete
+Research readiness: incomplete
 
-Deliverability: incomplete
+Writing readiness: weak
+
+Deliverability status: incomplete
 
 ## Question And Boundary
 
@@ -135,31 +137,34 @@ Question: {question}
 - Included:
 - Excluded:
 
-## Bottom Line
+## Orientation
 
-- Direct answer:
-- Confidence:
-- What would change the answer:
+- Why this topic may matter:
+- Current event hook or user doorway:
+- What must be true for the story to be worth writing:
+- What would make the story less interesting or wrong:
 
 ## Timeline
 
 - TODO
 
-## Claim Map
+## System Explainer
+
+- Institutions and actors:
+- Money, legal, technical, or operational machinery:
+- Incentives and constraints:
+- Definitions a reader needs:
+- What a curious non-specialist must understand before judging the narrative:
+
+## Evidence Backbone
+
+Use this section to narrate only the evidence that matters. Every load-bearing claim must connect to `extractions.csv` rows and use `(C#, S#)` anchors.
+
+### Claim Map
 
 | Claim ID | Claim | Load-bearing? | Evidence needed | Falsifier or weakener | Status | Confidence |
 |---|---|---|---|---|---|---|
 | C1 | TODO | yes | TODO | TODO | unaudited | incomplete |
-
-## Causal Model
-
-| Cause or mechanism | Claim IDs | Evidence for | Evidence against | Alternatives/confounders | Verdict | Confidence |
-|---|---|---|---|---|---|---|
-| TODO | C1 | TODO | TODO | TODO | TODO | incomplete |
-
-## Source And Evidence Audit
-
-Use this section to narrate only the evidence that matters. Every load-bearing claim must connect to `extractions.csv` rows and use `(C#, S#)` anchors.
 
 ### Source Readouts
 
@@ -169,9 +174,17 @@ Use this section to narrate only the evidence that matters. Every load-bearing c
 
 - TODO
 
+## Live Viewpoints
+
+Map actual living/current voices, institutions, publications, or movements. Do not invent generic camps.
+
+| Viewpoint | Representative source IDs | Actual argument | Evidence they rely on | What they get right | What they overstate or miss |
+|---|---|---|---|---|---|
+| TODO | S# | TODO | TODO | TODO | TODO |
+
 ## Economic Perspectives
 
-For economic or policy topics, each perspective must be tested against evidence, not summarized as a slogan.
+For economic or policy topics, each perspective must be tested against evidence, not summarized as a slogan. Canonical thinkers may provide background, but current issue-specific representatives or active institutions must carry the lens where available.
 
 ### Austrian / Free-Market
 
@@ -213,6 +226,59 @@ For economic or policy topics, each perspective must be tested against evidence,
 - What it misses:
 - Verdict:
 
+## Causal Models
+
+| Cause or mechanism | Claim IDs | Evidence for | Evidence against | Alternatives/confounders | Verdict | Confidence |
+|---|---|---|---|---|---|---|
+| TODO | C1 | TODO | TODO | TODO | TODO | incomplete |
+
+## Emerging Tensions
+
+- Tension:
+- Why it matters:
+- Evidence on each side:
+- What would resolve it:
+
+## Angle Readiness
+
+Do not pitch angles before evidence earns them. Each possible angle must say whether it is weak, explanatory-only, promising, or ready.
+
+### Angle: TODO
+
+- Why it might be interesting:
+- Evidence currently supporting it:
+- Evidence missing:
+- Strongest counterargument:
+- Readiness: weak
+
+## Claims To Avoid
+
+- Claim:
+- Why to avoid it:
+- What evidence would be needed:
+
+## So What?
+
+- Why should a reader care beyond the headline?
+- What changes if the strongest interpretation is true?
+- Who is made uncomfortable by this framing?
+- What larger system does this reveal?
+- What is the most honest boring version of the story?
+
+## Reporting Plan
+
+| Source/document to get | Why it matters | Claim it would test | Where to find it | How it could change the article |
+|---|---|---|---|---|
+| TODO | TODO | C# | TODO | TODO |
+
+## Writer's Current Position
+
+- Current thesis, if any:
+- Confidence:
+- What survived the audit:
+- What failed or weakened:
+- What remains unknown:
+
 ## Bias And Symmetry Check
 
 - Left/institutional bias check:
@@ -222,15 +288,20 @@ For economic or policy topics, each perspective must be tested against evidence,
 - Motive-language symmetry check:
 - Reversal test:
 
+## Hostile Editor Review
+
+- Research readiness:
+- Writing readiness:
+- Strongest objection to the article:
+- Unsupported load-bearing claims:
+- Missing documents/interviews/data:
+- Best counterexample:
+- Most likely ideological bias:
+- Required revisions before publication:
+
 ## Unknowns And What Would Change The Assessment
 
 - TODO
-
-## Adversarial Evaluation
-
-Expert evaluator: pending
-
-Deliverability status: incomplete
 
 ## Quality Gate Result
 
@@ -238,7 +309,10 @@ Pending.
 
 ## Expert Evaluator Result
 
-Pending.
+- Expert evaluator: pending
+- Research readiness: incomplete
+- Writing readiness: weak
+- Deliverability status: incomplete
 """,
     )
 
@@ -274,6 +348,10 @@ VERDICT: revise
 - counterargument handling:
 - economic-perspective depth:
 - ideological symmetry:
+- live-viewpoint grounding:
+- angle readiness:
+- so-what test:
+- reporting plan:
 - reader coherence:
 - final-answer usefulness:
 
@@ -303,11 +381,19 @@ Check left/institutional bias, right/business/libertarian bias, establishment/de
 
 ## Reader Coherence Review
 
-Check whether `research-brief.md` reads as one guided investigation rather than disconnected artifact summaries.
+Check whether `writer-research-packet.md` reads as one guided investigation rather than disconnected artifact summaries.
 
 ## Final-Answer Usefulness Review
 
 Check whether the user can understand the answer, evidence, uncertainty, and strongest objections without opening random side files.
+
+## Readiness Review
+
+- research readiness:
+- writing readiness:
+- ready angles:
+- claims to avoid:
+- reporting needed:
 
 ## Revision Requirements
 
@@ -315,7 +401,7 @@ Check whether the user can understand the answer, evidence, uncertainty, and str
 
 ## Final Evaluator Decision
 
-Do not mark VERDICT: pass until every blocking issue is fixed in `research-brief.md`, `sources.csv`, `extractions.csv`, and `source-cache/manifest.csv`.
+Do not mark VERDICT: pass until every blocking issue is fixed in `writer-research-packet.md`, `sources.csv`, `extractions.csv`, and `source-cache/manifest.csv`.
 """,
     )
 

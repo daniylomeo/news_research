@@ -2,7 +2,7 @@
 
 Codex skills for high-quality research into current events, history, politics, policy, science-in-policy disputes, institutions, and public controversies.
 
-The goal of this repo is to make serious research behavior automatic: Evidence Audit Project creation for broad topics, source-neutral claim mapping, extraction before synthesis, method and data checks, funder/incentive disclosure, contradiction searches, and a fail-closed quality gate before delivery.
+The goal of this repo is to make serious research behavior automatic: Evidence Audit Project creation for broad topics, source-neutral claim mapping, extraction before synthesis, method and data checks, funder/incentive disclosure, contradiction searches, and a fail-closed quality gate before delivery. The default output is a writer research packet that helps decide what is actually worth writing, not a premature article pitch.
 
 ## Skills
 
@@ -14,7 +14,9 @@ Use for broad research briefings and Evidence Audit Projects. It requires:
 - broad claim intake before conclusions;
 - source-neutral evidence evaluation, where prestige and stigma affect scrutiny but not truth;
 - extraction tables for load-bearing claims before synthesis;
-- one coherent `research-brief.md` as the main reader-facing dossier, with small supporting tables rather than file sprawl;
+- one coherent `writer-research-packet.md` as the main reader-facing and writer-facing packet, with small supporting tables rather than file sprawl;
+- independent research-readiness and writing-readiness verdicts;
+- angle readiness, claims-to-avoid, So What, and reporting-plan sections before any article direction is treated as earned;
 - mechanism explanations for systems, institutions, money flows, incentives, and tradeoffs;
 - historical context with real depth when history matters;
 - primary and official sources where available;
@@ -57,7 +59,8 @@ Use for mapping debates, narratives, ideologies, and commentary. It requires:
 
 - deferred central research;
 - synthesis before extraction;
-- missing unified brief, source table, extraction table, source-cache manifest, or adversarial evaluation;
+- missing writer packet, source table, extraction table, source-cache manifest, or adversarial evaluation;
+- article angles marked ready without evidence, counterevidence, missing-evidence, and reporting-plan support;
 - load-bearing claims without extraction rows;
 - source prestige or stigma used as a substitute for data/methods;
 - weak third-party aggregators used for central claims;
@@ -102,6 +105,6 @@ After installation, start a new Codex chat. The skills should appear in the avai
 
 ## Design Principle
 
-The user should only need to name the topic. For broad, controversial, historical, scientific, economic, policy, or current-events research, the skills should automatically create an Evidence Audit Project when a writable workspace exists, build a coherent `research-brief.md`, map claims from every relevant viewpoint, extract evidence before synthesis, audit sources by data and method rather than prestige, preserve source access in `source-cache/manifest.csv`, run the preflight gate before delivery, then summarize and link the project artifacts. If no project folder is created, the agent should explain why.
+The user should only need to name the topic. For broad, controversial, historical, scientific, economic, policy, or current-events research, the skills should automatically create an Evidence Audit Project when a writable workspace exists, build a coherent `writer-research-packet.md`, map claims from every relevant viewpoint, extract evidence before synthesis, audit sources by data and method rather than prestige, preserve source access in `source-cache/manifest.csv`, run the preflight gate before delivery, then summarize and link the project artifacts. If no project folder is created, the agent should explain why.
 
 This repo also includes `AGENTS.md` so new Codex chats opened inside the repository receive the same high-level research workflow instruction even before a skill body is loaded.
