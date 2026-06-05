@@ -8,7 +8,11 @@ This gate is automatic. For broad, controversial, historical, scientific, econom
 
 Stop and revise before final output if any answer is "yes":
 
-- Does the project lack `writer-research-packet.md`, `sources.csv`, `extractions.csv`, `source-cache/manifest.csv`, or `adversarial-evaluation.md`?
+- Does the project lack `writer-research-packet.md`, `source-acquisition.csv`, `evidence-threads.csv`, `sources.csv`, `extractions.csv`, `source-cache/manifest.csv`, or `adversarial-evaluation.md`?
+- Does the packet lack an Assignment Brief, Source Universe Map, Source Acquisition Plan, source readouts, or Adversarial Review Loop?
+- Does `evidence-threads.csv` fail to break the research into central evidence threads with completion standards, required primary sources, required artifacts, status, blocking gaps, completion evidence, and synthesis permission?
+- Does `source-acquisition.csv` have pending blocking targets while the packet claims usable/strong research readiness, promising/ready writing readiness, or deliverable/excellent status?
+- Is any central evidence thread marked partial, incomplete, blocked, or not allowed for synthesis while the packet still gives a settled conclusion, usable/strong research readiness, promising/ready writing readiness, or deliverable/excellent status?
 - Does `writer-research-packet.md` fail to read as one coherent writer packet with question/boundary, orientation, timeline, system explainer, evidence backbone, live viewpoints, economic perspectives when relevant, causal models, emerging tensions, angle readiness, claims to avoid, So What stress test, reporting plan, writer's current position, bias/symmetry check, hostile editor review, unknowns, quality gate result, and expert evaluator result?
 - Does the packet lack independent `Research readiness` and `Writing readiness` verdicts?
 - Is an article angle marked promising or ready before the evidence backbone, counterevidence, missing evidence, and reporting plan justify that status?
@@ -18,8 +22,11 @@ Stop and revise before final output if any answer is "yes":
 - Does the packet cite claims that do not appear as audited rows in `extractions.csv`?
 - Does the packet cite source IDs that do not appear in extraction rows supporting audited claims?
 - Are load-bearing claims missing extraction rows or explicit unauditable/incomplete rows?
-- Does any central source or extraction row rely on a search-result snippet, preview, abstract, landing page, press release, or secondary summary where a primary document, filing, dataset, docket, transcript, report, or source page was reasonably available?
-- Does `sources.csv` omit source-access depth, primary-source availability/use, centrality, or evidence limits?
+- Does any central source or extraction row rely on a search-result snippet, preview, abstract, landing page, press release, or secondary summary where a primary document, filing, dataset, docket, transcript, report, original video/audio, or source page was reasonably available?
+- Does any exact quote rely on AI-generated transcript, aggregator transcript, snippet, or secondary summary while primary audio/video/transcript is reasonably available?
+- Does `sources.csv` omit source-access depth, audit state, primary-source availability/use, centrality, or evidence limits?
+- Is any central source marked `found` or `opened` rather than `audited` or `publication_ready`?
+- Does any central source bypass an available primary source?
 - Is any central source marked `snippet_only`, or marked `secondary_summary` while a primary source was available and not used?
 - Does any load-bearing source lack a `source-cache/manifest.csv` row with cached status, access date, cache reason, centrality, and copyright limitations?
 - Does the audit judge source credibility by prestige, peer review, institutional status, or outsider status before inspecting data and methods?
@@ -27,8 +34,10 @@ Stop and revise before final output if any answer is "yes":
 - Does the project lack retraceable URLs or citations for the actual documents, datasets, filings, reports, and pages used?
 - Do source or extraction rows name documents without linking to them or stating what parts were read?
 - Does any major section consist mostly of conclusion bullets without mechanisms, examples, citations, and counterarguments?
+- Does any load-bearing source lack a real readout explaining what the source is, what parts were read, methods/evidence, what it actually says, what it does not prove, strengths, weaknesses, incentives, what media/advocates overstate, and article use?
 - For a causal question, does the answer lack a causal model or matrix with mechanism, evidence quality, alternative explanations, counterevidence, confidence, and falsifiers?
-- For economic or policy questions, does the Economic Perspectives chapter lack current issue-specific economists or active institutions/commentators for the relevant schools?
+- For questions with a material economic mechanism, does the Economic Perspectives chapter lack current issue-specific economists or active institutions/commentators for the relevant schools?
+- For questions without a material economic mechanism, did the packet shoehorn economic schools instead of marking Economic Perspectives not applicable?
 - Are economic perspectives summarized from canonical theory, famous dead thinkers, or model memory instead of actual current representatives speaking about the issue or a close policy analogue?
 - Does any substantive economic lens lack a cited current issue-specific representative source and also fail to say exactly `No current issue-specific representative found; lens incomplete.`?
 - Does any lens marked incomplete still give itself a strong or complete verdict?
@@ -45,6 +54,8 @@ Stop and revise before final output if any answer is "yes":
 - Does the So What section fail to answer why a reader should care beyond the headline, what changes if the interpretation is true, who is made uncomfortable by the framing, and what larger system it reveals?
 - Does the Reporting Plan lack concrete documents, datasets, interviews, or records to obtain, why each matters, what claim it would test, where to find it, and how it could change the article?
 - Does `adversarial-evaluation.md` lack `VERDICT: pass`, or list unresolved blocking issues or unsupported load-bearing claims?
+- Would a hostile professor or expert editor reject the packet as under-researched inside the stated boundary?
+- Did the agent respond to hostile-review blockers with caveats instead of returning to source acquisition, source readouts, extraction, and revision?
 - Does the evaluator fail to grade evidence integrity, causal inference, source preservation, counterargument handling, economic-perspective depth, ideological symmetry, live-viewpoint grounding, angle readiness, So What strength, reporting plan, reader coherence, and final-answer usefulness?
 - Does `writer-research-packet.md` lack a `Quality Gate Result` section or `Expert Evaluator Result` section?
 - Does the final deliverability status remain anything other than `deliverable` or `excellent`?
@@ -55,24 +66,28 @@ If a hard stop cannot be fixed in the current pass, state that the research is i
 
 Before finalizing, run these passes in order:
 
-1. **Packet-structure pass:** build `writer-research-packet.md` around question/boundary, orientation, timeline, system explainer, evidence backbone, live viewpoints, economic perspectives if relevant, causal models, emerging tensions, angle readiness, claims to avoid, So What stress test, reporting plan, writer's current position, bias/symmetry check, hostile editor review, evaluator result, and quality gate.
-2. **Claim-universe pass:** map mainstream, academic, industry/state, local, dissident, conspiratorial, and ideological claims before judging them.
-3. **Load-bearing pass:** mark the claims whose truth would change the conclusion or article angle.
-4. **Extraction pass:** fill `sources.csv`, `extractions.csv`, and `source-cache/manifest.csv`; do not synthesize claims that lack extraction rows.
-5. **Mechanism pass:** explain how the system works in practice: money, law, institutions, incentives, tradeoffs, and affected people.
-6. **Live-viewpoint pass:** identify actual current people, institutions, publications, movements, or texts. Do not invent generic camps.
-7. **Source-integrity pass:** replace convenient secondary/aggregator sources with official datasets, primary records, specialist literature, or clearly justified secondary sources.
-8. **Source-preservation pass:** cache public central sources where lawful/practical; otherwise record metadata, compliant excerpts/extraction notes, access date, and cache reason.
-9. **Causal-matrix pass:** for why/cause/driver questions, build a matrix before prose.
-10. **Quantitative-reconstruction pass:** for numerical impact claims, reconstruct row-level units and show baseline, denominator, classification rule, assumptions, constraints, confidence, and sensitivity.
-11. **Economic/lens pass:** for policy and economic questions, find current issue-specific economists or active institutions/commentators for each relevant perspective, extract their actual argument into `extractions.csv`, and test each perspective against evidence instead of summarizing it from theory.
-12. **Ideological-bias pass:** check left/liberal/institutional bias, right/business/libertarian bias, establishment/deference bias, anti-establishment bias, and motive-language symmetry.
-13. **Counterexample pass:** test the conclusion and potential article angle against cases that should break it if it is too simple.
-14. **Angle-readiness pass:** for each possible article angle, state why it is interesting, what evidence supports it, what evidence is missing, the strongest counterargument, and a readiness rating.
-15. **So-What pass:** test whether the research reveals a larger system, conflict, incentive structure, or unresolved public question that a reader should care about.
-16. **Reporting-plan pass:** list the documents, datasets, interviews, or records that would improve the article and what each could change.
-17. **Reader-coherence pass:** verify the main packet can stand alone. Move only long support into referenced appendices.
-18. **Adversarial-evaluator pass:** fill `adversarial-evaluation.md` as a hostile PhD examiner and editor. Do not deliver a settled answer unless the final verdict is pass.
+1. **Packet-structure pass:** build `writer-research-packet.md` around assignment brief, question/boundary, source universe, source acquisition, evidence thread contract, orientation, timeline, system explainer, evidence backbone and source readouts, live viewpoints, economic perspectives if relevant, causal models, emerging tensions, angle readiness, claims to avoid, So What stress test, reporting plan, writer's current position, bias/symmetry check, hostile editor/professor review, adversarial review loop, evaluator result, and quality gate.
+2. **Source-universe pass:** ask what must be read to understand this, identify source classes, rank sources as load-bearing/adversarial/contextual/duplicative/lead-only, and create `source-acquisition.csv`.
+3. **Evidence-thread contract pass:** create `evidence-threads.csv` before synthesis. Each central thread must define completion standard, required primary sources, required artifact, status, blocking gap, completion evidence, and synthesis permission.
+4. **Claim-universe pass:** map mainstream, academic, industry/state, local, dissident, conspiratorial, and ideological claims before judging them.
+5. **Load-bearing pass:** mark the claims whose truth would change the conclusion or article angle.
+6. **Source-readout pass:** deeply read load-bearing studies, reports, legal records, datasets, transcripts, audio/video, and comparison cases. Write readouts that explain methods/evidence, strengths, weaknesses, and article use.
+7. **Extraction pass:** fill `sources.csv`, `extractions.csv`, and `source-cache/manifest.csv`; do not synthesize claims that lack extraction rows. Central source rows must be `audited` or `publication_ready`.
+8. **Mechanism pass:** explain how the system works in practice: money, law, institutions, incentives, tradeoffs, and affected people.
+9. **Live-viewpoint pass:** identify actual current people, institutions, publications, movements, or texts. Do not invent generic camps.
+10. **Source-integrity pass:** replace convenient secondary/aggregator sources with official datasets, primary records, specialist literature, or clearly justified secondary sources.
+11. **Source-preservation pass:** cache public central sources where lawful/practical; otherwise record metadata, compliant excerpts/extraction notes, access date, and cache reason.
+12. **Causal-matrix pass:** for why/cause/driver questions, build a matrix before prose.
+13. **Quantitative-reconstruction pass:** for numerical impact claims, reconstruct row-level units and show baseline, denominator, classification rule, assumptions, constraints, confidence, and sensitivity.
+14. **Economic/lens pass:** for policy and economic questions, find current issue-specific economists or active institutions/commentators for each relevant perspective, extract their actual argument into `extractions.csv`, and test each perspective against evidence instead of summarizing it from theory.
+15. **Ideological-bias pass:** check left/liberal/institutional bias, right/business/libertarian bias, establishment/deference bias, anti-establishment bias, and motive-language symmetry.
+16. **Counterexample pass:** test the conclusion and potential article angle against cases that should break it if it is too simple.
+17. **Angle-readiness pass:** for each possible article angle, state why it is interesting, what evidence supports it, what evidence is missing, the strongest counterargument, and a readiness rating.
+18. **So-What pass:** test whether the research reveals a larger system, conflict, incentive structure, or unresolved public question that a reader should care about.
+19. **Reporting-plan pass:** list the documents, datasets, interviews, or records that would improve the article and what each could change.
+20. **Reader-coherence pass:** verify the main packet can stand alone. Move only long support into referenced appendices.
+21. **Adversarial-evaluator pass:** fill `adversarial-evaluation.md` as a hostile PhD examiner and editor. Do not deliver a settled answer unless the final verdict is pass.
+22. **Adversarial-loop pass:** convert every blocking evaluator critique into a concrete research task, update the artifacts, and rerun the gate. Caveats do not resolve blocking research failures.
 
 ## Adversarial Evaluator Template
 

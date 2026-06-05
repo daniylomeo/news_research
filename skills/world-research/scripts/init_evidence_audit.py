@@ -37,6 +37,7 @@ SOURCE_HEADERS = [
     "claims_made",
     "data_access",
     "source_access",
+    "audit_state",
     "primary_available",
     "primary_used",
     "centrality",
@@ -44,6 +45,37 @@ SOURCE_HEADERS = [
     "funding_ownership_incentives",
     "eligible_for_central_evidence",
     "notes",
+]
+
+THREAD_HEADERS = [
+    "thread_id",
+    "thread_name",
+    "user_question_parts",
+    "central",
+    "completion_standard",
+    "required_primary_sources",
+    "required_artifact",
+    "status",
+    "blocking_gap",
+    "completion_evidence",
+    "synthesis_allowed",
+]
+
+SOURCE_ACQUISITION_HEADERS = [
+    "acquisition_id",
+    "thread_id",
+    "source_needed",
+    "source_class",
+    "why_needed",
+    "minimum_depth",
+    "primary_or_best_available_standard",
+    "search_status",
+    "best_current_source_id",
+    "access_state",
+    "publication_ready",
+    "blocking_if_missing",
+    "acquisition_notes",
+    "next_step",
 ]
 
 EXTRACTION_HEADERS = [
@@ -137,6 +169,43 @@ Question: {question}
 - Included:
 - Excluded:
 
+## Assignment Brief
+
+- User's intended use:
+- Article, op-ed, explainer, or decision this research should serve:
+- What the user needs to understand better than public discourse:
+- Claims or angles the user is considering:
+- What would make the work useful:
+- What would make the work misleading or unusable:
+
+## Source Universe Map
+
+Map the sources needed to understand the issue before deciding what the evidence earns.
+
+| Source class | Examples to seek | Why it matters | Centrality | Status |
+|---|---|---|---|---|
+| Primary records/documents | TODO | TODO | load-bearing | not started |
+| Studies/data/reports | TODO | TODO | load-bearing/contextual | not started |
+| Strongest critics | TODO | TODO | adversarial | not started |
+| Strongest defenders | TODO | TODO | adversarial | not started |
+| Context/reporting | TODO | TODO | context/lead | not started |
+
+## Source Acquisition Plan
+
+Track concrete source targets in `source-acquisition.csv`. A central source target that remains pending blocks synthesis unless the boundary is explicitly narrowed.
+
+| Acquisition ID | Thread ID | Source needed | Minimum depth | Blocking if missing? | Status |
+|---|---|---|---|---|---|
+| A1 | T1 | TODO | full document/readout | yes | pending |
+
+## Evidence Thread Contract
+
+Before synthesis, split the project into evidence threads. The project is not deliverable until every central thread in `evidence-threads.csv` is complete or the packet clearly says the project is incomplete inside the chosen boundary.
+
+| Thread ID | Thread | Central? | Completion standard | Required primary sources | Status | Synthesis allowed? |
+|---|---|---|---|---|---|---|
+| T1 | TODO | yes | TODO | TODO | incomplete | no |
+
 ## Orientation
 
 - Why this topic may matter:
@@ -168,7 +237,21 @@ Use this section to narrate only the evidence that matters. Every load-bearing c
 
 ### Source Readouts
 
-- TODO
+For every load-bearing source, write a real readout. Do not summarize the source's reputation or media reception as a substitute for understanding the source.
+
+- Source ID:
+- What the source is:
+- What parts were read:
+- Research question or institutional purpose:
+- Data/method/evidence:
+- What it actually says:
+- What it does not prove:
+- Strengths:
+- Weaknesses/method limits:
+- Funding/ownership/incentives:
+- What media or advocates get right:
+- What media or advocates overstate:
+- Article/op-ed use:
 
 ### Extraction Summary
 
@@ -184,7 +267,9 @@ Map actual living/current voices, institutions, publications, or movements. Do n
 
 ## Economic Perspectives
 
-For economic or policy topics, each perspective must be tested against evidence, not summarized as a slogan. Canonical thinkers may provide background, but current issue-specific representatives or active institutions must carry the lens where available.
+Include this section only when the research question has a real economic mechanism such as prices, budgets, markets, labor, taxation, subsidies, ratepayers, industry structure, regulation-as-economic-control, or resource allocation. If not economically relevant, write: `Economic perspectives: not applicable; no material economic mechanism in this research boundary.`
+
+For economic topics, each perspective must be tested against evidence, not summarized as a slogan. Canonical thinkers may provide background, but current issue-specific representatives or active institutions must carry the lens where available.
 
 ### Austrian / Free-Market
 
@@ -293,11 +378,22 @@ Do not pitch angles before evidence earns them. Each possible angle must say whe
 - Research readiness:
 - Writing readiness:
 - Strongest objection to the article:
+- Would this survive a hostile professor or expert editor inside the stated boundary?:
+- Source class still missing:
+- Under-read source:
 - Unsupported load-bearing claims:
 - Missing documents/interviews/data:
 - Best counterexample:
 - Most likely ideological bias:
-- Required revisions before publication:
+- Required deeper research before publication:
+
+## Adversarial Review Loop
+
+Treat hostile review as a research loop, not a decorative deliverable. Every blocking critique must become a source-acquisition, extraction, or packet-revision task before readiness can improve.
+
+| Iteration | Blocking critique | Research task created | Artifact updated | Resolved? |
+|---|---|---|---|---|
+| 1 | TODO | TODO | TODO | no |
 
 ## Unknowns And What Would Change The Assessment
 
@@ -318,6 +414,8 @@ Pending.
 
     write_csv_if_missing(project / "sources.csv", SOURCE_HEADERS)
     write_csv_if_missing(project / "extractions.csv", EXTRACTION_HEADERS)
+    write_csv_if_missing(project / "evidence-threads.csv", THREAD_HEADERS)
+    write_csv_if_missing(project / "source-acquisition.csv", SOURCE_ACQUISITION_HEADERS)
     write_csv_if_missing(project / "source-cache" / "manifest.csv", CACHE_MANIFEST_HEADERS)
 
     write_if_missing(
@@ -359,6 +457,12 @@ VERDICT: revise
 
 Check whether central claims rely on full documents, filings, datasets, dockets, transcripts, or inspected source pages rather than snippets, search results, press releases, or secondary summaries where primary sources were available.
 
+Fail the project if any central evidence thread is incomplete, if any central source is only found/opened rather than audited/publication-ready, or if the packet synthesizes from secondary summaries where primary records were reasonably available.
+
+Check `source-acquisition.csv`. Fail the project if a blocking source target remains pending while the packet gives a settled conclusion, article-ready angle, or usable/strong research readiness.
+
+Check source readouts. Fail the project if the packet names a load-bearing study, report, legal record, dataset, transcript, or clip without explaining what it is, what parts were read, what it actually says, methods/evidence, weaknesses, and article use.
+
 ## Causal Inference Review
 
 Check mechanisms, counterfactuals, alternatives, counterevidence, confidence, and what would falsify each causal claim.
@@ -398,6 +502,8 @@ Check whether the user can understand the answer, evidence, uncertainty, and str
 ## Revision Requirements
 
 - TODO
+
+Every blocking critique must become a concrete research task and be resolved in the artifacts before VERDICT: pass.
 
 ## Final Evaluator Decision
 

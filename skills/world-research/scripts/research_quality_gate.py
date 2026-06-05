@@ -166,12 +166,44 @@ SOURCE_REQUIRED_COLUMNS = {
     "claims_made",
     "data_access",
     "source_access",
+    "audit_state",
     "primary_available",
     "primary_used",
     "centrality",
     "evidence_limit",
     "funding_ownership_incentives",
     "eligible_for_central_evidence",
+}
+
+SOURCE_ACQUISITION_REQUIRED_COLUMNS = {
+    "acquisition_id",
+    "thread_id",
+    "source_needed",
+    "source_class",
+    "why_needed",
+    "minimum_depth",
+    "primary_or_best_available_standard",
+    "search_status",
+    "best_current_source_id",
+    "access_state",
+    "publication_ready",
+    "blocking_if_missing",
+    "acquisition_notes",
+    "next_step",
+}
+
+THREAD_REQUIRED_COLUMNS = {
+    "thread_id",
+    "thread_name",
+    "user_question_parts",
+    "central",
+    "completion_standard",
+    "required_primary_sources",
+    "required_artifact",
+    "status",
+    "blocking_gap",
+    "completion_evidence",
+    "synthesis_allowed",
 }
 
 EXTRACTION_REQUIRED_COLUMNS = {
@@ -224,9 +256,9 @@ QUANT_TOPIC_RE = re.compile(
 PREDICTION_WORD_RE = re.compile(r"\b(likely|could|may|might|valid|actual effect|plausible|forecast|projection|estimate)\b", flags=re.IGNORECASE)
 
 ECONOMIC_TOPIC_RE = re.compile(
-    r"\b(economic|economics|cost benefit|cost-benefit|benefit|harms?|jobs?|tax|subsid(?:y|ies)|"
+    r"\b(economic|economics|cost benefit|cost-benefit|costs?|prices?|budgets?|jobs?|tax|subsid(?:y|ies)|"
     r"ratepayer|inflation|wages?|productivity|market|industrial policy|externalit(?:y|ies)|"
-    r"public investment|regulation|data centers?|ai infrastructure)\b",
+    r"public investment|resource allocation|industry structure|data centers?|ai infrastructure)\b",
     flags=re.IGNORECASE,
 )
 
@@ -270,6 +302,14 @@ SOURCE_ACCESS_ALLOWED = {
     "not_applicable",
 }
 
+AUDIT_STATE_ALLOWED = {
+    "found",
+    "opened",
+    "audited",
+    "publication_ready",
+    "not_applicable",
+}
+
 EVALUATOR_REQUIRED_TERMS = [
     "blocking issues",
     "unsupported load-bearing claims",
@@ -285,6 +325,8 @@ EVALUATOR_REQUIRED_TERMS = [
 ]
 
 UNIFIED_PROJECT_REQUIRED_FILES = [
+    "evidence-threads.csv",
+    "source-acquisition.csv",
     "sources.csv",
     "extractions.csv",
     "source-cache/manifest.csv",
@@ -293,6 +335,10 @@ UNIFIED_PROJECT_REQUIRED_FILES = [
 
 WRITER_PACKET_REQUIRED_SECTIONS = [
     "Question And Boundary",
+    "Assignment Brief",
+    "Source Universe Map",
+    "Source Acquisition Plan",
+    "Evidence Thread Contract",
     "Orientation",
     "Timeline",
     "System Explainer",
@@ -307,7 +353,37 @@ WRITER_PACKET_REQUIRED_SECTIONS = [
     "Writer's Current Position",
     "Bias And Symmetry Check",
     "Hostile Editor Review",
+    "Adversarial Review Loop",
     "Unknowns And What Would Change The Assessment",
+    "Quality Gate Result",
+    "Expert Evaluator Result",
+]
+
+UPDATE_PASS_REQUIRED_FILES = [
+    "{slug}-writer-research-packet.md",
+    "{slug}-evidence-threads.csv",
+    "{slug}-source-acquisition.csv",
+    "{slug}-sources.csv",
+    "{slug}-extractions.csv",
+    "{slug}-source-cache-manifest.csv",
+    "{slug}-adversarial-evaluation.md",
+]
+
+UPDATE_PASS_REQUIRED_SECTIONS = [
+    "Assignment Brief",
+    "Research Boundary",
+    "Source Universe Map",
+    "Evidence Thread Contract",
+    "Source Acquisition Plan",
+    "Primary Source Readouts",
+    "Claim Ledger",
+    "Evidence Synthesis",
+    "Live Viewpoints",
+    "Article Use Memo",
+    "Claims To Avoid",
+    "Reporting Plan",
+    "Hostile Professor Review",
+    "Adversarial Review Loop",
     "Quality Gate Result",
     "Expert Evaluator Result",
 ]
@@ -363,6 +439,9 @@ EXPERT_EVALUATOR_REQUIRED_TERMS = [
     "reader coherence",
     "final-answer usefulness",
 ]
+
+SOURCE_REF_RE = re.compile(r"\b(?:[A-Z][A-Z0-9]*-)?S\d+\b")
+CLAIM_REF_RE = re.compile(r"\bC\d+\b")
 
 
 def headings(text: str) -> list[tuple[int, str, int]]:
@@ -482,6 +561,11 @@ def section_body(text: str, expected: str) -> str:
     return ""
 
 
+def economic_perspectives_not_applicable(text: str) -> bool:
+    body = section_body(text, "Economic Perspectives")
+    return bool(body and re.search(r"\bnot applicable\b", body, flags=re.IGNORECASE))
+
+
 def add_pattern_findings(text: str, patterns: list[tuple[str, str]], severity: str, findings: list[tuple[str, str, str]]) -> None:
     for pattern, message in patterns:
         for match in re.finditer(pattern, text, flags=re.IGNORECASE):
@@ -556,6 +640,30 @@ def split_artifact_paths(value: str) -> list[str]:
     return [part.strip() for part in re.split(r"[;,]", value or "") if part.strip()]
 
 
+def claim_refs(value: str) -> set[str]:
+    return set(CLAIM_REF_RE.findall(value or ""))
+
+
+def source_refs(value: str) -> set[str]:
+    return set(SOURCE_REF_RE.findall(value or ""))
+
+
+def positive_readiness(text: str) -> bool:
+    return bool(
+        re.search(r"\bresearch readiness:\s*(usable|strong)\b", text, flags=re.IGNORECASE)
+        or re.search(r"\bwriting readiness:\s*(promising|ready)\b", text, flags=re.IGNORECASE)
+        or re.search(r"\bdeliverability status:\s*(deliverable|excellent)\b", text, flags=re.IGNORECASE)
+        or re.search(r"\bdeliverability:\s*(deliverable|excellent)\b", text, flags=re.IGNORECASE)
+    )
+
+
+def risky_quote_source(row: dict[str, str]) -> bool:
+    text = " ".join(row.values()).lower()
+    return bool(
+        re.search(r"\b(ai[- ]generated|aggregator|snippet|secondary summary|secondary_summary|abstract only|metadata only)\b", text)
+    )
+
+
 def page_range_width(location: str) -> int | None:
     match = re.search(r"\bpages?\s+(\d+)\s*[-–]\s*(\d+)\b", location, flags=re.IGNORECASE)
     if not match:
@@ -592,6 +700,8 @@ def check_unified_project(path: Path) -> int:
     is_writer_packet = brief.name == "writer-research-packet.md"
     sources_csv = path / "sources.csv"
     extractions_csv = path / "extractions.csv"
+    threads_csv = path / "evidence-threads.csv"
+    acquisition_csv = path / "source-acquisition.csv"
     cache_manifest = path / "source-cache" / "manifest.csv"
     adversarial_eval = path / "adversarial-evaluation.md"
 
@@ -619,12 +729,20 @@ def check_unified_project(path: Path) -> int:
     missing = EXTRACTION_REQUIRED_COLUMNS - csv_header(extractions_csv, findings)
     if missing:
         findings.append(("FAIL", extractions_csv.name, f"missing columns: {', '.join(sorted(missing))}"))
+    missing = THREAD_REQUIRED_COLUMNS - csv_header(threads_csv, findings)
+    if missing:
+        findings.append(("FAIL", threads_csv.name, f"missing columns: {', '.join(sorted(missing))}"))
+    missing = SOURCE_ACQUISITION_REQUIRED_COLUMNS - csv_header(acquisition_csv, findings)
+    if missing:
+        findings.append(("FAIL", acquisition_csv.name, f"missing columns: {', '.join(sorted(missing))}"))
     missing = CACHE_MANIFEST_REQUIRED_COLUMNS - csv_header(cache_manifest, findings)
     if missing:
         findings.append(("FAIL", str(cache_manifest.relative_to(path)), f"missing columns: {', '.join(sorted(missing))}"))
 
     source_rows = read_csv_rows(sources_csv, findings)
     extraction_rows = read_csv_rows(extractions_csv, findings)
+    thread_rows = read_csv_rows(threads_csv, findings)
+    acquisition_rows = read_csv_rows(acquisition_csv, findings)
     cache_rows = read_csv_rows(cache_manifest, findings)
     extracted_claim_ids = {row.get("claim_id", "") for row in extraction_rows}
     extracted_source_ids = {row.get("source_id", "") for row in extraction_rows}
@@ -636,6 +754,52 @@ def check_unified_project(path: Path) -> int:
         findings.append(("FAIL", sources_csv.name, "sources.csv has no source rows"))
     if not extraction_rows:
         findings.append(("FAIL", extractions_csv.name, "extractions.csv has no extraction rows"))
+    if not thread_rows:
+        findings.append(("FAIL", threads_csv.name, "evidence-threads.csv has no evidence thread rows"))
+    if not acquisition_rows:
+        findings.append(("FAIL", acquisition_csv.name, "source-acquisition.csv has no source acquisition rows"))
+
+    for idx, row in enumerate(thread_rows, start=2):
+        status = row.get("status", "").lower()
+        synthesis_allowed = row.get("synthesis_allowed", "").strip().lower()
+        central = row_truthy(row, "central")
+        if status not in {"complete", "partial", "incomplete", "blocked", "not_applicable"}:
+            findings.append(("FAIL", f"{threads_csv.name} row {idx}", "status must be complete, partial, incomplete, blocked, or not_applicable"))
+        if synthesis_allowed not in {"yes", "no", "true", "false", "1", "0"}:
+            findings.append(("FAIL", f"{threads_csv.name} row {idx}", "synthesis_allowed must be yes or no"))
+        if central and status != "complete":
+            findings.append(("FAIL", f"{threads_csv.name} row {idx}", "central evidence thread is not complete; do not synthesize or mark deliverable"))
+        if central and not truthy(synthesis_allowed):
+            findings.append(("FAIL", f"{threads_csv.name} row {idx}", "central evidence thread does not allow synthesis"))
+        for field in ("completion_standard", "required_primary_sources", "required_artifact"):
+            if central and not row.get(field):
+                findings.append(("FAIL", f"{threads_csv.name} row {idx}", f"central evidence thread lacks {field}"))
+        if central and status == "complete":
+            completion_ids = claim_refs(row.get("completion_evidence", ""))
+            completion_source_refs = source_refs(row.get("completion_evidence", ""))
+            if not completion_ids or not completion_source_refs:
+                findings.append(("FAIL", f"{threads_csv.name} row {idx}", "complete central thread must cite audited claim ids and source ids in completion_evidence"))
+            missing_completion_claims = sorted(claim_id for claim_id in completion_ids if claim_id not in extracted_claim_ids)
+            if missing_completion_claims:
+                findings.append(("FAIL", f"{threads_csv.name} row {idx}", f"completion_evidence cites claim ids without extraction rows: {', '.join(missing_completion_claims)}"))
+        for artifact in split_artifact_paths(row.get("required_artifact", "")):
+            target = path / artifact
+            if artifact and not target.exists():
+                findings.append(("FAIL", f"{threads_csv.name} row {idx}", f"required_artifact does not exist: {artifact}"))
+
+    for idx, row in enumerate(acquisition_rows, start=2):
+        search_status = row.get("search_status", "").strip().lower()
+        publication_ready = row.get("publication_ready", "").strip().lower()
+        blocking = row_truthy(row, "blocking_if_missing")
+        if search_status not in {"pending", "not_started", "searched", "found", "opened", "audited", "complete", "blocked", "not_applicable"}:
+            findings.append(("FAIL", f"{acquisition_csv.name} row {idx}", "search_status must be pending, not_started, searched, found, opened, audited, complete, blocked, or not_applicable"))
+        if publication_ready not in {"yes", "no", "true", "false", "1", "0", "not_applicable"}:
+            findings.append(("FAIL", f"{acquisition_csv.name} row {idx}", "publication_ready must be yes or no"))
+        if blocking and (search_status in {"pending", "not_started", "searched", "found", "opened", "blocked"} or not truthy(publication_ready)):
+            findings.append(("FAIL", f"{acquisition_csv.name} row {idx}", "blocking source target is not publication-ready; return to source acquisition before synthesis"))
+        source_id = row.get("best_current_source_id", "")
+        if source_id and source_id not in source_ids:
+            findings.append(("FAIL", f"{acquisition_csv.name} row {idx}", f"best_current_source_id is not present in sources.csv: {source_id}"))
 
     for source_id in extracted_source_ids:
         if source_id and source_id not in source_ids:
@@ -643,6 +807,7 @@ def check_unified_project(path: Path) -> int:
 
     for idx, row in enumerate(source_rows, start=2):
         source_access = row.get("source_access", "").lower()
+        audit_state = row.get("audit_state", "").lower()
         representative_status = row.get("representative_status", "").lower()
         issue_specificity = row.get("issue_specificity", "").lower()
         if representative_status and representative_status not in ECONOMIC_REPRESENTATIVE_STATUS_ALLOWED:
@@ -651,7 +816,13 @@ def check_unified_project(path: Path) -> int:
             findings.append(("FAIL", f"{sources_csv.name} row {idx}", f"issue_specificity must be one of: {', '.join(sorted(ECONOMIC_ISSUE_SPECIFICITY_ALLOWED))}"))
         if source_access not in SOURCE_ACCESS_ALLOWED:
             findings.append(("FAIL", f"{sources_csv.name} row {idx}", f"source_access must be one of: {', '.join(sorted(SOURCE_ACCESS_ALLOWED))}"))
+        if audit_state not in AUDIT_STATE_ALLOWED:
+            findings.append(("FAIL", f"{sources_csv.name} row {idx}", f"audit_state must be one of: {', '.join(sorted(AUDIT_STATE_ALLOWED))}"))
         eligible = row_truthy(row, "eligible_for_central_evidence") or row.get("centrality", "").lower() in {"central", "load-bearing", "load bearing"}
+        if eligible and audit_state not in {"audited", "publication_ready"}:
+            findings.append(("FAIL", f"{sources_csv.name} row {idx}", "central source must be audited or publication_ready, not merely found/opened"))
+        if eligible and row_truthy(row, "primary_available") and not row_truthy(row, "primary_used"):
+            findings.append(("FAIL", f"{sources_csv.name} row {idx}", "central source cannot bypass an available primary source"))
         if eligible and source_access == "snippet_only":
             findings.append(("FAIL", f"{sources_csv.name} row {idx}", "snippet_only source cannot support central evidence"))
         if eligible and source_access == "secondary_summary" and row_truthy(row, "primary_available") and not row_truthy(row, "primary_used"):
@@ -682,6 +853,8 @@ def check_unified_project(path: Path) -> int:
                     findings.append(("FAIL", f"source-cache/manifest.csv source {row.get('source_id', '')}", "missing copyright_limitations note"))
         if eligible and source_access == "partial_document" and re.search(r"\b(academic|peer|study|journal|paper|university|scholar)\b", row.get("source_type", ""), flags=re.IGNORECASE):
             findings.append(("FAIL", f"{sources_csv.name} row {idx}", "central academic/specialist study is only partially inspected; do not use abstracts/metadata as central evidence"))
+        if eligible and risky_quote_source(row) and row_truthy(row, "primary_available") and not row_truthy(row, "primary_used"):
+            findings.append(("FAIL", f"{sources_csv.name} row {idx}", "central quote-sensitive source relies on AI/aggregator/snippet/secondary material while a primary source is available"))
 
     for idx, row in enumerate(extraction_rows, start=2):
         status = row.get("status", "").lower()
@@ -718,7 +891,7 @@ def check_unified_project(path: Path) -> int:
         if not any(re.search(r"\b(dissident|contrarian|conspir|fringe|outsider|activist|local)\b", value) for value in viewpoint_values | source_type_values):
             findings.append(("WARN", sources_csv.name, "no dissident/local/outsider/conspiratorial source class logged; confirm this was intentional"))
         if not any(re.search(r"\b(academic|peer|study|university|scholar|specialist)\b", value) for value in source_type_values):
-            if ECONOMIC_TOPIC_RE.search(all_text):
+            if ECONOMIC_TOPIC_RE.search(all_text) and not (brief.exists() and economic_perspectives_not_applicable(brief.read_text(encoding="utf-8", errors="ignore"))):
                 findings.append(("FAIL", sources_csv.name, "economic/policy topic has no academic/specialist source class logged"))
             else:
                 findings.append(("WARN", sources_csv.name, "no academic/specialist source class logged"))
@@ -773,8 +946,8 @@ def check_unified_project(path: Path) -> int:
             findings.append(("FAIL", brief.name, "main packet does not cite claim ids"))
         if not re.search(r"\bS\d+\b", brief_text):
             findings.append(("FAIL", brief.name, "main packet does not cite source ids"))
-        unsupported_claim_ids = sorted(claim_id for claim_id in set(re.findall(r"\bC\d+\b", brief_text)) if claim_id not in extracted_claim_ids)
-        unsupported_source_ids = sorted(source_id for source_id in set(re.findall(r"\bS\d+\b", brief_text)) if source_id not in extracted_source_ids)
+        unsupported_claim_ids = sorted(claim_id for claim_id in claim_refs(brief_text) if claim_id not in extracted_claim_ids)
+        unsupported_source_ids = sorted(source_id for source_id in source_refs(brief_text) if source_id not in extracted_source_ids)
         if unsupported_claim_ids:
             findings.append(("FAIL", brief.name, f"main packet cites claim ids without extraction support: {', '.join(unsupported_claim_ids)}"))
         if unsupported_source_ids:
@@ -788,6 +961,15 @@ def check_unified_project(path: Path) -> int:
             for term in ("claim map", "source readouts", "extraction summary"):
                 if term not in evidence_body.lower():
                     findings.append(("FAIL", "Evidence Backbone", f"missing evidence-backbone component: {term}"))
+            readout_body = section_body(evidence_body, "Source Readouts") or evidence_body
+            for row in source_rows:
+                if row_truthy(row, "eligible_for_central_evidence") or row.get("centrality", "").lower() in {"central", "load-bearing", "load bearing"}:
+                    sid = row.get("source_id", "")
+                    if sid and sid not in readout_body:
+                        findings.append(("FAIL", "Evidence Backbone", f"load-bearing source lacks a packet readout: {sid}"))
+            for phrase in ("what the source is", "what parts were read", "what it actually says", "what it does not prove", "weakness", "article"):
+                if phrase not in readout_body.lower():
+                    findings.append(("FAIL", "Evidence Backbone", f"source readouts lack field: {phrase}"))
 
             causal_body = section_body(brief_text, "Causal Models")
             for phrase in ("cause or mechanism", "evidence for", "evidence against", "alternatives", "confidence"):
@@ -845,16 +1027,21 @@ def check_unified_project(path: Path) -> int:
                 findings.append(("FAIL", "Reporting Plan", "reporting plan needs at least two concrete document/interview/data targets"))
 
             editor_body = section_body(brief_text, "Hostile Editor Review")
-            for phrase in ("research readiness", "writing readiness", "strongest objection", "unsupported load-bearing", "missing documents", "counterexample", "ideological bias", "required revisions"):
+            for phrase in ("research readiness", "writing readiness", "strongest objection", "survive a hostile professor", "source class", "under-read source", "unsupported load-bearing", "missing documents", "counterexample", "ideological bias", "required deeper research"):
                 if phrase not in editor_body.lower():
                     findings.append(("FAIL", "Hostile Editor Review", f"hostile editor review lacks field: {phrase}"))
+
+            loop_body = section_body(brief_text, "Adversarial Review Loop")
+            for phrase in ("blocking critique", "research task", "artifact updated", "resolved"):
+                if phrase not in loop_body.lower():
+                    findings.append(("FAIL", "Adversarial Review Loop", f"adversarial review loop lacks field: {phrase}"))
 
             writer_position_body = section_body(brief_text, "Writer's Current Position")
             for phrase in ("current thesis", "confidence", "survived", "failed", "unknown"):
                 if phrase not in writer_position_body.lower():
                     findings.append(("FAIL", "Writer's Current Position", f"writer position lacks field: {phrase}"))
 
-        if ECONOMIC_TOPIC_RE.search(all_text):
+        if ECONOMIC_TOPIC_RE.search(all_text) and not economic_perspectives_not_applicable(brief_text):
             lens_source_rows = [
                 row for row in source_rows
                 if row.get("economic_lens", "").strip()
@@ -946,6 +1133,237 @@ def check_unified_project(path: Path) -> int:
         if re.search(r"blocking issues[\s\S]{0,800}claim_id:\s*C\d+", eval_text, flags=re.IGNORECASE):
             findings.append(("FAIL", adversarial_eval.name, "adversarial evaluation lists unresolved blocking issues"))
 
+    add_pattern_findings(all_text, HARD_PATTERNS, "FAIL", findings)
+    add_pattern_findings(all_text, WEAK_SOURCE_PATTERNS, "FAIL", findings)
+    add_pattern_findings(all_text, PRESTIGE_FIRST_PATTERNS, "FAIL", findings)
+
+    fail_count = sum(1 for sev, _, _ in findings if sev == "FAIL")
+    warn_count = sum(1 for sev, _, _ in findings if sev == "WARN")
+
+    if findings:
+        for severity, location, message in findings:
+            print(f"{severity}: {location}: {message}")
+    else:
+        print("PASS: no heuristic quality-gate findings")
+
+    print(f"Summary: {fail_count} fail(s), {warn_count} warning(s)")
+    return 1 if fail_count else 0
+
+
+def check_update_pass(path: Path, slug: str) -> int:
+    findings: list[tuple[str, str, str]] = []
+
+    files = {
+        "packet": path / f"{slug}-writer-research-packet.md",
+        "threads": path / f"{slug}-evidence-threads.csv",
+        "acquisition": path / f"{slug}-source-acquisition.csv",
+        "sources": path / f"{slug}-sources.csv",
+        "extractions": path / f"{slug}-extractions.csv",
+        "cache": path / f"{slug}-source-cache-manifest.csv",
+        "eval": path / f"{slug}-adversarial-evaluation.md",
+    }
+
+    for template in UPDATE_PASS_REQUIRED_FILES:
+        name = template.format(slug=slug)
+        target = path / name
+        if not target.exists():
+            findings.append(("FAIL", "update pass", f"missing required artifact: {name}"))
+        elif target.stat().st_size < 40:
+            findings.append(("FAIL", name, "artifact is empty or too thin"))
+
+    missing = THREAD_REQUIRED_COLUMNS - csv_header(files["threads"], findings)
+    if missing:
+        findings.append(("FAIL", files["threads"].name, f"missing columns: {', '.join(sorted(missing))}"))
+    missing = SOURCE_ACQUISITION_REQUIRED_COLUMNS - csv_header(files["acquisition"], findings)
+    if missing:
+        findings.append(("FAIL", files["acquisition"].name, f"missing columns: {', '.join(sorted(missing))}"))
+    missing = SOURCE_REQUIRED_COLUMNS - csv_header(files["sources"], findings)
+    if missing:
+        findings.append(("FAIL", files["sources"].name, f"missing columns: {', '.join(sorted(missing))}"))
+    missing = EXTRACTION_REQUIRED_COLUMNS - csv_header(files["extractions"], findings)
+    if missing:
+        findings.append(("FAIL", files["extractions"].name, f"missing columns: {', '.join(sorted(missing))}"))
+    missing = CACHE_MANIFEST_REQUIRED_COLUMNS - csv_header(files["cache"], findings)
+    if missing:
+        findings.append(("FAIL", files["cache"].name, f"missing columns: {', '.join(sorted(missing))}"))
+
+    thread_rows = read_csv_rows(files["threads"], findings)
+    acquisition_rows = read_csv_rows(files["acquisition"], findings)
+    source_rows = read_csv_rows(files["sources"], findings)
+    extraction_rows = read_csv_rows(files["extractions"], findings)
+    cache_rows = read_csv_rows(files["cache"], findings)
+
+    if not thread_rows:
+        findings.append(("FAIL", files["threads"].name, "update pass has no evidence thread rows"))
+    if not acquisition_rows:
+        findings.append(("FAIL", files["acquisition"].name, "update pass has no source acquisition rows"))
+    if not source_rows:
+        findings.append(("FAIL", files["sources"].name, "update pass has no source rows"))
+    if not extraction_rows:
+        findings.append(("FAIL", files["extractions"].name, "update pass has no extraction rows"))
+
+    extracted_claim_ids = {row.get("claim_id", "") for row in extraction_rows}
+    extracted_source_ids = {row.get("source_id", "") for row in extraction_rows}
+    source_ids = {row.get("source_id", "") for row in source_rows}
+    source_by_id = {row.get("source_id", ""): row for row in source_rows}
+    cache_by_source = {row.get("source_id", ""): row for row in cache_rows}
+
+    blocking_thread_rows: list[int] = []
+    blocking_acquisition_rows: list[int] = []
+
+    for idx, row in enumerate(thread_rows, start=2):
+        status = row.get("status", "").lower()
+        synthesis_allowed = row.get("synthesis_allowed", "").strip().lower()
+        central = row_truthy(row, "central")
+        if status not in {"complete", "partial", "incomplete", "blocked", "not_applicable"}:
+            findings.append(("FAIL", f"{files['threads'].name} row {idx}", "status must be complete, partial, incomplete, blocked, or not_applicable"))
+        if synthesis_allowed not in {"yes", "no", "true", "false", "1", "0"}:
+            findings.append(("FAIL", f"{files['threads'].name} row {idx}", "synthesis_allowed must be yes or no"))
+        if central and status != "complete":
+            blocking_thread_rows.append(idx)
+            findings.append(("FAIL", f"{files['threads'].name} row {idx}", "central evidence thread is not complete; second-pass synthesis is blocked"))
+        if central and not truthy(synthesis_allowed):
+            blocking_thread_rows.append(idx)
+            findings.append(("FAIL", f"{files['threads'].name} row {idx}", "central evidence thread does not allow synthesis"))
+        for field in ("completion_standard", "required_primary_sources", "required_artifact"):
+            if central and not row.get(field):
+                findings.append(("FAIL", f"{files['threads'].name} row {idx}", f"central evidence thread lacks {field}"))
+        if central and status == "complete":
+            completion_ids = claim_refs(row.get("completion_evidence", ""))
+            completion_source_refs = source_refs(row.get("completion_evidence", ""))
+            if not completion_ids or not completion_source_refs:
+                findings.append(("FAIL", f"{files['threads'].name} row {idx}", "complete central thread must cite audited claim ids and source ids in completion_evidence"))
+            missing_completion_claims = sorted(claim_id for claim_id in completion_ids if claim_id not in extracted_claim_ids)
+            if missing_completion_claims:
+                findings.append(("FAIL", f"{files['threads'].name} row {idx}", f"completion_evidence cites claim ids without extraction rows: {', '.join(missing_completion_claims)}"))
+        for artifact in split_artifact_paths(row.get("required_artifact", "")):
+            if artifact and not (path / artifact).exists():
+                findings.append(("FAIL", f"{files['threads'].name} row {idx}", f"required_artifact does not exist: {artifact}"))
+
+    for idx, row in enumerate(acquisition_rows, start=2):
+        search_status = row.get("search_status", "").strip().lower()
+        publication_ready = row.get("publication_ready", "").strip().lower()
+        blocking = row_truthy(row, "blocking_if_missing")
+        if search_status not in {"pending", "not_started", "searched", "found", "opened", "audited", "complete", "blocked", "not_applicable"}:
+            findings.append(("FAIL", f"{files['acquisition'].name} row {idx}", "search_status must be pending, not_started, searched, found, opened, audited, complete, blocked, or not_applicable"))
+        if publication_ready not in {"yes", "no", "true", "false", "1", "0", "not_applicable"}:
+            findings.append(("FAIL", f"{files['acquisition'].name} row {idx}", "publication_ready must be yes or no"))
+        if blocking and (search_status in {"pending", "not_started", "searched", "found", "opened", "blocked"} or not truthy(publication_ready)):
+            blocking_acquisition_rows.append(idx)
+            findings.append(("FAIL", f"{files['acquisition'].name} row {idx}", "blocking source target is not publication-ready; go back to source acquisition"))
+        source_id = row.get("best_current_source_id", "")
+        if source_id and source_id not in source_ids:
+            findings.append(("FAIL", f"{files['acquisition'].name} row {idx}", f"best_current_source_id is not present in sources table: {source_id}"))
+
+    for source_id in extracted_source_ids:
+        if source_id and source_id not in source_ids:
+            findings.append(("FAIL", files["extractions"].name, f"extraction row references missing source_id: {source_id}"))
+
+    central_source_ids: set[str] = set()
+    for idx, row in enumerate(source_rows, start=2):
+        source_access = row.get("source_access", "").lower()
+        audit_state = row.get("audit_state", "").lower()
+        if source_access not in SOURCE_ACCESS_ALLOWED:
+            findings.append(("FAIL", f"{files['sources'].name} row {idx}", f"source_access must be one of: {', '.join(sorted(SOURCE_ACCESS_ALLOWED))}"))
+        if audit_state not in AUDIT_STATE_ALLOWED:
+            findings.append(("FAIL", f"{files['sources'].name} row {idx}", f"audit_state must be one of: {', '.join(sorted(AUDIT_STATE_ALLOWED))}"))
+        eligible = row_truthy(row, "eligible_for_central_evidence") or row.get("centrality", "").lower() in {"central", "load-bearing", "load bearing"}
+        if eligible:
+            central_source_ids.add(row.get("source_id", ""))
+        if eligible and audit_state not in {"audited", "publication_ready"}:
+            findings.append(("FAIL", f"{files['sources'].name} row {idx}", "central source must be audited or publication_ready"))
+        if eligible and row_truthy(row, "primary_available") and not row_truthy(row, "primary_used"):
+            findings.append(("FAIL", f"{files['sources'].name} row {idx}", "central source cannot bypass an available primary source"))
+        if eligible and source_access in {"snippet_only", "secondary_summary"}:
+            findings.append(("FAIL", f"{files['sources'].name} row {idx}", "snippet or secondary summary cannot carry update-pass central evidence"))
+        if eligible and risky_quote_source(row) and row_truthy(row, "primary_available") and not row_truthy(row, "primary_used"):
+            findings.append(("FAIL", f"{files['sources'].name} row {idx}", "exact-quote-sensitive source relies on AI/aggregator/snippet/secondary material while primary audio/video/transcript is reasonably available"))
+        if eligible:
+            cache_row = cache_by_source.get(row.get("source_id", ""))
+            if not cache_row:
+                findings.append(("FAIL", f"{files['sources'].name} row {idx}", "central source lacks pass source-cache manifest row"))
+            elif not cache_row.get("copyright_limitations"):
+                findings.append(("FAIL", f"{files['cache'].name} source {row.get('source_id', '')}", "missing copyright_limitations note"))
+
+    for idx, row in enumerate(extraction_rows, start=2):
+        status = row.get("status", "").lower()
+        if status not in {"supports", "weakens", "mixed", "inconclusive", "fails", "unauditable", "incomplete", "context"}:
+            findings.append(("FAIL", f"{files['extractions'].name} row {idx}", "status must be supports, weakens, mixed, inconclusive, fails, unauditable, incomplete, or context"))
+        if not row.get("evidence_location"):
+            findings.append(("FAIL", f"{files['extractions'].name} row {idx}", "missing evidence_location"))
+        if not row.get("method_notes"):
+            findings.append(("FAIL", f"{files['extractions'].name} row {idx}", "missing method_notes"))
+        if not row.get("our_critique"):
+            findings.append(("FAIL", f"{files['extractions'].name} row {idx}", "missing our_critique"))
+        if prose_words(row.get("extracted_data_or_quote", "")) < 8:
+            findings.append(("FAIL", f"{files['extractions'].name} row {idx}", "extracted_data_or_quote is too thin to show comprehension"))
+        source_row = source_by_id.get(row.get("source_id", ""), {})
+        if status not in {"context", "incomplete", "unauditable"} and risky_quote_source(source_row) and row_truthy(source_row, "primary_available") and not row_truthy(source_row, "primary_used"):
+            findings.append(("FAIL", f"{files['extractions'].name} row {idx}", "extraction uses AI/aggregator/snippet/secondary material for an evidentiary claim while primary source is available"))
+
+    if files["packet"].exists():
+        packet_text = files["packet"].read_text(encoding="utf-8", errors="ignore")
+        packet_lower = packet_text.lower()
+        if "todo" in packet_lower:
+            findings.append(("FAIL", files["packet"].name, "packet still contains TODO placeholders"))
+        if positive_readiness(packet_text) and (blocking_thread_rows or blocking_acquisition_rows):
+            findings.append(("FAIL", files["packet"].name, "packet claims usable/strong/promising/ready/deliverable status while central threads or blocking source targets remain incomplete"))
+        for section in UPDATE_PASS_REQUIRED_SECTIONS:
+            if not has_heading(packet_text, section):
+                findings.append(("FAIL", files["packet"].name, f"missing required update-pass section: {section}"))
+        unsupported_claim_ids = sorted(claim_id for claim_id in claim_refs(packet_text) if claim_id not in extracted_claim_ids)
+        unsupported_source_ids = sorted(source_id for source_id in source_refs(packet_text) if source_id not in extracted_source_ids and source_id not in source_ids)
+        if unsupported_claim_ids:
+            findings.append(("FAIL", files["packet"].name, f"packet cites claim ids without extraction support: {', '.join(unsupported_claim_ids)}"))
+        if unsupported_source_ids:
+            findings.append(("FAIL", files["packet"].name, f"packet cites source ids absent from pass tables: {', '.join(unsupported_source_ids)}"))
+
+        readout_body = section_body(packet_text, "Primary Source Readouts")
+        for sid in sorted(central_source_ids):
+            if sid and sid not in readout_body:
+                findings.append(("FAIL", "Primary Source Readouts", f"load-bearing source lacks a readout: {sid}"))
+        for phrase in ("what the source is", "what parts were read", "data/method/evidence", "what it actually says", "what it does not prove", "weakness", "article/op-ed use"):
+            if phrase not in readout_body.lower():
+                findings.append(("FAIL", "Primary Source Readouts", f"readouts lack field: {phrase}"))
+
+        article_body = section_body(packet_text, "Article Use Memo")
+        for phrase in ("what can be written", "what cannot be written", "strongest caveat", "unsupported", "embarrass"):
+            if phrase not in article_body.lower():
+                findings.append(("FAIL", "Article Use Memo", f"article memo lacks field: {phrase}"))
+
+        professor_body = section_body(packet_text, "Hostile Professor Review")
+        for phrase in ("survive a hostile professor", "source class", "under-read source", "unsupported load-bearing", "required deeper research"):
+            if phrase not in professor_body.lower():
+                findings.append(("FAIL", "Hostile Professor Review", f"hostile professor review lacks field: {phrase}"))
+
+        loop_body = section_body(packet_text, "Adversarial Review Loop")
+        for phrase in ("blocking critique", "research task", "artifact updated", "resolved"):
+            if phrase not in loop_body.lower():
+                findings.append(("FAIL", "Adversarial Review Loop", f"adversarial review loop lacks field: {phrase}"))
+
+    if files["eval"].exists():
+        eval_text = files["eval"].read_text(encoding="utf-8", errors="ignore")
+        eval_lower = eval_text.lower()
+        if "todo" in eval_lower:
+            findings.append(("FAIL", files["eval"].name, "adversarial evaluation still contains TODO placeholders"))
+        match = re.search(r"\bVERDICT:\s*(pass|revise|fail)\b", eval_text, flags=re.IGNORECASE)
+        if not match:
+            findings.append(("FAIL", files["eval"].name, "adversarial evaluation lacks VERDICT: pass|revise|fail"))
+        elif match.group(1).lower() != "pass":
+            findings.append(("FAIL", files["eval"].name, f"adversarial evaluator verdict is not pass: {match.group(1).lower()}"))
+        elif blocking_thread_rows or blocking_acquisition_rows:
+            findings.append(("FAIL", files["eval"].name, "evaluator says pass while blocking thread/source-acquisition gaps remain"))
+        for phrase in ("source comprehension", "evidence integrity", "article use", "bias and symmetry", "revision requirements", "final evaluator decision"):
+            if phrase not in eval_lower:
+                findings.append(("FAIL", files["eval"].name, f"adversarial evaluation lacks section/term: {phrase}"))
+        if re.search(r"blocking issues[\s\S]{0,800}claim_id:\s*C\d+", eval_text, flags=re.IGNORECASE):
+            findings.append(("FAIL", files["eval"].name, "adversarial evaluation lists unresolved blocking issues"))
+
+    all_text = "\n".join(
+        target.read_text(encoding="utf-8", errors="ignore")
+        for target in files.values()
+        if target.exists() and target.suffix.lower() in {".md", ".csv", ".txt"}
+    )
     add_pattern_findings(all_text, HARD_PATTERNS, "FAIL", findings)
     add_pattern_findings(all_text, WEAK_SOURCE_PATTERNS, "FAIL", findings)
     add_pattern_findings(all_text, PRESTIGE_FIRST_PATTERNS, "FAIL", findings)
@@ -1066,9 +1484,16 @@ def check_project(path: Path) -> int:
 
     for idx, row in enumerate(source_rows, start=2):
         source_access = row.get("source_access", "").lower()
+        audit_state = row.get("audit_state", "").lower()
         if source_access not in SOURCE_ACCESS_ALLOWED:
             findings.append(("FAIL", f"{source_csv.name} row {idx}", f"source_access must be one of: {', '.join(sorted(SOURCE_ACCESS_ALLOWED))}"))
+        if audit_state not in AUDIT_STATE_ALLOWED:
+            findings.append(("FAIL", f"{source_csv.name} row {idx}", f"audit_state must be one of: {', '.join(sorted(AUDIT_STATE_ALLOWED))}"))
         eligible = row_truthy(row, "eligible_for_central_evidence") or row.get("centrality", "").lower() in {"central", "load-bearing", "load bearing"}
+        if eligible and audit_state not in {"audited", "publication_ready"}:
+            findings.append(("FAIL", f"{source_csv.name} row {idx}", "central source must be audited or publication_ready, not merely found/opened"))
+        if eligible and row_truthy(row, "primary_available") and not row_truthy(row, "primary_used"):
+            findings.append(("FAIL", f"{source_csv.name} row {idx}", "central source cannot bypass an available primary source"))
         if eligible and source_access == "snippet_only":
             findings.append(("FAIL", f"{source_csv.name} row {idx}", "snippet_only source cannot support central evidence"))
         if eligible and source_access == "secondary_summary" and row_truthy(row, "primary_available") and not row_truthy(row, "primary_used"):
@@ -1237,7 +1662,7 @@ def check_project(path: Path) -> int:
     add_pattern_findings(all_text, WEAK_SOURCE_PATTERNS, "FAIL", findings)
     add_pattern_findings(all_text, PRESTIGE_FIRST_PATTERNS, "FAIL", findings)
 
-    if ECONOMIC_TOPIC_RE.search(all_text):
+    if ECONOMIC_TOPIC_RE.search(all_text) and not economic_perspectives_not_applicable(all_text):
         if not lens_review.exists():
             findings.append(("FAIL", "project", "economic/policy topic requires lens-review.md"))
         else:
@@ -1268,10 +1693,13 @@ def check_project(path: Path) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("path", help="Evidence Audit Project directory or legacy Markdown dossier to check")
+    parser.add_argument("--pass", dest="pass_slug", help="Validate an update-pass slug such as second-pass")
     args = parser.parse_args()
 
     path = Path(args.path)
     if path.is_dir():
+        if args.pass_slug:
+            return check_update_pass(path, args.pass_slug)
         return check_project(path)
 
     text = path.read_text(encoding="utf-8")
