@@ -1,89 +1,85 @@
-# News Research Skills
+# Evidence-Driven Writer Research Skills
 
-Codex skills for high-quality research into current events, history, politics, policy, science-in-policy disputes, institutions, and public controversies.
+Codex skills for article research into current events, history, politics, policy, economics, institutions, scientific disputes, and public controversies.
 
-The goal of this repo is to make serious research behavior automatic: Evidence Audit Project creation for broad topics, source-neutral claim mapping, extraction before synthesis, method and data checks, funder/incentive disclosure, contradiction searches, and a fail-closed quality gate before delivery. The default output is a writer research packet that helps decide what is actually worth writing, not a premature article pitch.
+The central rule is source-neutral skepticism: every source is a claim container, never an authority. Peer review, official status, institutional prestige, ideology, and outsider status may identify failure modes to inspect but never determine the conclusion. Verdicts come from provenance, raw evidence, measurement, method, reproducibility, uncertainty, counterevidence, and fit between evidence and claim.
+
+## One-Assignment Contract
+
+One user assignment produces one completed writer research packet. Codex performs source acquisition, extraction, methodology review, contradiction search, adversarial review, and revision internally until the project passes. A new update is created only for a user-requested follow-up, genuinely new evidence, or a changed research boundary.
+
+An `indeterminate` result can be complete when the necessary evidence is genuinely unavailable. Ordinary obtainable desk research cannot be deferred to another pass.
 
 ## Skills
 
-### `world-research`
+- `world-research`: full Evidence Audit Projects and writer research packets.
+- `fact-check-ledger`: atomic claim verification with claim-specific evidence and method audits.
+- `viewpoint-map`: evidence-tested maps of real debates, narratives, incentives, and policy theories.
 
-Use for broad research briefings and Evidence Audit Projects. It requires:
+## Version 2 Project
 
-- holistic issue models, not narrow answer-only summaries;
-- broad claim intake before conclusions;
-- source-neutral evidence evaluation, where prestige and stigma affect scrutiny but not truth;
-- extraction tables for load-bearing claims before synthesis;
-- one coherent `writer-research-packet.md` as the main reader-facing and writer-facing packet, with small supporting tables rather than file sprawl;
-- independent research-readiness and writing-readiness verdicts;
-- angle readiness, claims-to-avoid, So What, and reporting-plan sections before any article direction is treated as earned;
-- mechanism explanations for systems, institutions, money flows, incentives, and tradeoffs;
-- historical context with real depth when history matters;
-- primary and official sources where available;
-- source intake and evidence extraction for major evidence;
-- source-cache manifest records for load-bearing sources;
-- NGO, nonprofit, think-tank, advocacy, rating, and index audits;
-- economic and ideological lens checks for policy/economic questions;
-- current, issue-specific economists or active institutions for economic lens claims rather than school summaries from model memory;
-- named debate/commentary maps, not generic "both sides" placeholders;
-- case/data audits and sensitivity tests where implementation or coding matters;
-- hard counterexamples and adversarial self-review;
-- automatic Evidence Audit Project creation and preflight quality gate for broad or controversial topics.
-
-### `fact-check-ledger`
-
-Use for claim-by-claim verification. It requires:
-
-- atomic claim extraction;
-- primary-source-first verification;
-- study/data methodology readouts;
-- document/product readouts for central reports and filings;
-- funding/conflict notes for NGOs, nonprofits, think tanks, advocacy groups, and scientific studies;
-- symmetric standards for contested labels;
-- clear confidence levels and audit trails.
-
-### `viewpoint-map`
-
-Use for mapping debates, narratives, ideologies, and commentary. It requires:
-
-- real named actors, institutions, texts, movements, or schools of thought;
-- steelmanning before critique;
-- source/funding/incentive notes;
-- claim checks for major factual assertions;
-- non-mainstream and dissident views where relevant;
-- serious policy tradeoff analysis instead of toy proposals.
-
-## Quality Gate
-
-`skills/world-research/scripts/research_quality_gate.py` checks Evidence Audit Projects, and still supports legacy markdown dossiers, for common failure modes:
-
-- deferred central research;
-- synthesis before extraction;
-- missing writer packet, source table, extraction table, source-cache manifest, or adversarial evaluation;
-- article angles marked ready without evidence, counterevidence, missing-evidence, and reporting-plan support;
-- load-bearing claims without extraction rows;
-- source prestige or stigma used as a substitute for data/methods;
-- weak third-party aggregators used for central claims;
-- generic viewpoint camps;
-- vague funder summaries;
-- unsupported rubrics;
-- bullet-heavy uncited sections;
-- missing core sections.
-
-Run it with:
+Create a project:
 
 ```powershell
-python .\skills\world-research\scripts\init_evidence_audit.py .\research\example-topic --question "Does X outweigh Y?"
+python .\skills\world-research\scripts\init_evidence_audit.py .\research\example-topic --question "Does X cause Y?"
+```
+
+Core artifacts:
+
+- `project.json`: schema version, assignment, boundary, timestamps, and status.
+- `writer-research-packet.md`: coherent writer-facing investigation.
+- `claims.csv`: load-bearing claims, verdicts, confidence bases, contradiction status, and revision conditions.
+- `sources.csv`: claim-specific provenance, access, data, method, incentives, and limitations.
+- `extractions.csv`: raw evidence and the full claim-evidence-method chain.
+- `work-state.json`: internal research, contradiction, method-audit, and adversarial-review state.
+- `source-cache/manifest.csv`: truthful preservation state and hashes for local files.
+- `gate-report.json`: generated gate result.
+
+Run the gate:
+
+```powershell
 python .\skills\world-research\scripts\research_quality_gate.py .\research\example-topic
 ```
 
-The gate is heuristic, not a substitute for judgment, but failures should block delivery unless the work is explicitly marked incomplete.
+The gate separates deterministic structural integrity from evidence-integrity heuristics. It verifies references, IDs, schema, URLs, cache files and hashes, central-source depth, method and reproduction fields, contradiction completion, and one-assignment completion. It does not pretend that code can prove a substantive conclusion true.
 
-## Validation
+## Follow-Ups
 
-Each skill should validate with Codex's skill validator:
+Create an update only after a genuinely new user question:
 
 ```powershell
+python .\skills\world-research\scripts\init_update_pass.py .\research\example-topic --slug financial-angle --question "Now investigate the financing mechanism"
+```
+
+Updates live under `updates/<date>-<topic>/`. Numbered `second-pass` naming is rejected.
+
+## Preserving Version 1 Projects
+
+Existing projects are historical records and should not be silently rewritten. Migrate a copy for review:
+
+```powershell
+python .\skills\world-research\scripts\migrate_v1_project.py .\research\old-topic $env:TEMP\old-topic-v2
+python .\skills\world-research\scripts\research_quality_gate.py $env:TEMP\old-topic-v2
+```
+
+Migration transfers source and extraction material but deliberately leaves completion uncertified until v2 methodology, contradiction, provenance, and reproduction gaps are resolved.
+
+## Tests
+
+The gate uses the Python standard library. Run its adversarial regression suite with:
+
+```powershell
+python -m unittest discover -s .\skills\world-research\tests -v
+```
+
+The tests cover invalid citations, meaningless filler, false URL caches, hash verification, citation ranges, shallow peer-reviewed evidence, press-release implementation claims, low-prestige reproducible evidence, and completed indeterminate findings.
+
+## Skill Validation
+
+Codex's external skill validator requires PyYAML. Install the optional development dependency, then validate:
+
+```powershell
+python -m pip install -r .\requirements-dev.txt
 python "$env:USERPROFILE\.codex\skills\.system\skill-creator\scripts\quick_validate.py" .\skills\world-research
 python "$env:USERPROFILE\.codex\skills\.system\skill-creator\scripts\quick_validate.py" .\skills\fact-check-ledger
 python "$env:USERPROFILE\.codex\skills\.system\skill-creator\scripts\quick_validate.py" .\skills\viewpoint-map
@@ -91,7 +87,7 @@ python "$env:USERPROFILE\.codex\skills\.system\skill-creator\scripts\quick_valid
 
 ## Installation
 
-Codex does not automatically discover skills just because they exist inside a repository. To make these available in brand-new chats, install them into your Codex skills directory:
+Copy the skill folders into the Codex skills directory so new tasks can discover them:
 
 ```powershell
 $dest = "$env:USERPROFILE\.codex\skills"
@@ -100,11 +96,3 @@ Copy-Item .\skills\world-research "$dest\world-research" -Recurse -Force
 Copy-Item .\skills\fact-check-ledger "$dest\fact-check-ledger" -Recurse -Force
 Copy-Item .\skills\viewpoint-map "$dest\viewpoint-map" -Recurse -Force
 ```
-
-After installation, start a new Codex chat. The skills should appear in the available skills list and trigger automatically for matching research tasks.
-
-## Design Principle
-
-The user should only need to name the topic. For broad, controversial, historical, scientific, economic, policy, or current-events research, the skills should automatically create an Evidence Audit Project when a writable workspace exists, build a coherent `writer-research-packet.md`, map claims from every relevant viewpoint, extract evidence before synthesis, audit sources by data and method rather than prestige, preserve source access in `source-cache/manifest.csv`, run the preflight gate before delivery, then summarize and link the project artifacts. If no project folder is created, the agent should explain why.
-
-This repo also includes `AGENTS.md` so new Codex chats opened inside the repository receive the same high-level research workflow instruction even before a skill body is loaded.
