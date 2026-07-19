@@ -4,7 +4,7 @@ Write one coherent investigation, not a compliance form. Use the following core 
 
 ## Assignment And Boundary
 
-State the user's question, intended article use, time, geography, actors, definitions, inclusions, exclusions, and why the boundary fully answers the ask.
+State the user's question, intended article use, time, geography, actors, definitions, inclusions, exclusions, and why the boundary fully answers the ask. Record `Reader baseline`, `Assumed prior knowledge`, and `Knowledge-transfer goal`; default to an intelligent non-specialist with no prior topic knowledge unless the user explicitly authorizes and explains an exception.
 
 ## Bottom Line
 
@@ -13,6 +13,10 @@ Answer directly. Separate what the evidence earns, what it weakens or contradict
 ## How The System Works
 
 Explain the relevant history, institutions, technical machinery, incentives, causal pathways, money or power flows, and affected people in plain language.
+
+## Education Brief
+
+Use one registered `###` module for every central reader question, material historical or comparison case, necessary mechanism, and controversy whose component claims could be confused. Each module must orient the reader, narrate what happened or how the mechanism works, name and explain the principal evidence, present disputes and limits, and state why the module matters to the article. Read `reader-education.md` for the exact module and cold-reader contract.
 
 ## Evidence By Claim
 

@@ -13,3 +13,9 @@ Public links:
 - https://www.ifcncodeofprinciples.poynter.org/
 - https://verificationhandbook.com/
 - https://www.thomsonreuters.com/en/about-us/trust-principles
+
+## Educational standard
+
+- A Writer Research Packet transfers knowledge; its audit files provide verification. The reader should not need to read every source or CSV to understand the background, mechanism, evidence, uncertainty, and article relevance.
+- Teach before compressing. Tables, verdict ledgers, and source IDs may recap a prose explanation but may not introduce unfamiliar cases or institutions by themselves.
+- Validate the packet with an independent reader who sees only the packet. Revise the packet whenever that reader cannot explain what happened, who wanted what, what evidence supports the account, what remains disputed, and why it matters.

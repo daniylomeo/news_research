@@ -37,6 +37,11 @@ Use this manual review after extraction and before running the generated gate.
 ## Writer usefulness
 
 - Can the packet stand alone without requiring the CSVs for basic comprehension?
+- Does the Assignment And Boundary section state the reader baseline, assumed knowledge, and knowledge-transfer goal?
+- Does `reader-education.csv` register every central question, mechanism, controversy, and material comparison case and map every load-bearing claim to at least one central module?
+- Does every Education Brief module teach orientation, sequence or mechanism, named evidence, dispute or limit, and article relevance in connected prose before any table compresses it?
+- Does every material case-comparison row carry exactly one matching registered `Module ID` in its designated column?
+- Did a reader given only the packet reconstruct every central module and return an unqualified pass with no comprehension failure or required revision?
 - Does it explain the system, history, technical machinery, and causal reasoning needed to write with authority?
 - Are article directions clearly separated into ready, promising, and unsupported?
 - Are tempting claims to avoid paired with the evidence that would be required?

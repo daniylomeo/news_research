@@ -15,6 +15,7 @@ from research_gate.schema import (
     EXTRACTION_HEADERS,
     GATE_VERSION,
     MANIFEST_HEADERS,
+    READER_EDUCATION_HEADERS,
     SCHEMA_VERSION,
     SOURCE_HEADERS,
 )
@@ -55,6 +56,10 @@ Writing readiness: weak
 
 Question: {question}
 
+- Reader baseline: intelligent non-specialist
+- Assumed prior knowledge: none
+- Knowledge-transfer goal: explain the background, mechanism, evidence, uncertainty, and article relevance without requiring another artifact
+
 Intended article use:
 
 Time, geography, actors, and definitions:
@@ -68,6 +73,10 @@ Do not synthesize until load-bearing evidence has been extracted and audited.
 ## How The System Works
 
 Explain the history, institutions, technical machinery, incentives, causal pathways, and affected people required to understand the answer.
+
+## Education Brief
+
+Register each central reader question, mechanism, controversy, and material comparison in `reader-education.csv`, then teach it here in connected prose before using tables or compressed verdicts.
 
 ## Evidence By Claim
 
@@ -107,6 +116,30 @@ Completion statement pending. Do not claim completion until the generated gate p
 """
 
 
+def cold_reader_template() -> str:
+    return """# Cold-Reader Evaluation
+
+VERDICT: revise
+
+Other artifacts consulted: no
+
+Reader education: pending. Knowledge transfer: pending. Case comprehension: pending. Tables used as recaps: pending.
+
+## Module Results
+
+| Module ID | What happened or how it works | Actors and stakes understood | Evidence named and explained | Dispute or limit understood | Article relevance understood | Result |
+|---|---|---|---|---|---|---|
+
+## Reader Education And Knowledge Transfer Verdict
+
+- Can the reader accurately explain every central module without consulting another artifact? no
+- Does the packet define unfamiliar people, institutions, events, laws, and mechanisms before relying on them? no
+- Are tables used as recaps rather than substitutes for explanation? no
+- Case comprehension failures: not yet evaluated
+- Required revisions: complete the packet and run a packet-only cold-reader evaluation
+"""
+
+
 def initialize_project(
     project: Path,
     question: str,
@@ -128,7 +161,7 @@ def initialize_project(
         raise ValueError("A non-empty research question is required.")
     metadata = {
         "schema_version": SCHEMA_VERSION,
-        "skill_version": "2.0.0",
+        "skill_version": "2.1.0",
         "gate_version": GATE_VERSION,
         "project_id": project_id_from_path(project),
         "assignment_type": assignment_type,
@@ -159,9 +192,11 @@ def initialize_project(
     write_json_if_missing(project / "project.json", metadata)
     write_json_if_missing(project / "work-state.json", work_state)
     write_text_if_missing(project / "writer-research-packet.md", packet_template(clean_question, today))
+    write_text_if_missing(project / "cold-reader-evaluation.md", cold_reader_template())
     write_csv_if_missing(project / "claims.csv", CLAIM_HEADERS)
     write_csv_if_missing(project / "sources.csv", SOURCE_HEADERS)
     write_csv_if_missing(project / "extractions.csv", EXTRACTION_HEADERS)
+    write_csv_if_missing(project / "reader-education.csv", READER_EDUCATION_HEADERS)
     write_csv_if_missing(project / "source-cache" / "manifest.csv", MANIFEST_HEADERS)
 
 

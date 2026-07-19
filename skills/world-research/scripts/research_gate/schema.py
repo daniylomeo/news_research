@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass
 
 
 SCHEMA_VERSION = "2.0"
-GATE_VERSION = "2.0.0"
+GATE_VERSION = "2.1.0"
 
 REQUIRED_FILES = (
     "project.json",
@@ -12,6 +12,8 @@ REQUIRED_FILES = (
     "claims.csv",
     "sources.csv",
     "extractions.csv",
+    "reader-education.csv",
+    "cold-reader-evaluation.md",
     "work-state.json",
     "source-cache/manifest.csv",
 )
@@ -87,10 +89,28 @@ MANIFEST_HEADERS = (
     "copyright_notes",
 )
 
+READER_EDUCATION_HEADERS = (
+    "module_id",
+    "topic_or_case",
+    "claim_ids",
+    "central",
+    "reader_questions",
+    "required_background",
+    "required_sequence_or_mechanism",
+    "required_evidence_explanation",
+    "required_dispute_or_limit",
+    "required_article_relevance",
+    "packet_heading",
+    "status",
+    "cold_reader_status",
+    "cold_reader_notes",
+)
+
 REQUIRED_PACKET_SECTIONS = (
     "Assignment And Boundary",
     "Bottom Line",
     "How The System Works",
+    "Education Brief",
     "Evidence By Claim",
     "Method And Data Audits",
     "Contradictions And Competing Explanations",

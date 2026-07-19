@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import cache_checks, citation_checks, editorial_checks, evidence_checks, structural_checks
+from . import cache_checks, citation_checks, editorial_checks, evidence_checks, reader_checks, structural_checks
 from .schema import GATE_VERSION, SCHEMA_VERSION, Finding
 
 
@@ -11,6 +11,7 @@ def evaluate_project(project: Path | str) -> dict:
     project = Path(project)
     structural, data = structural_checks.check(project)
     findings: list[Finding] = list(structural)
+    findings.extend(reader_checks.check(project, data))
     findings.extend(citation_checks.check(project, data))
     findings.extend(cache_checks.check(project, data))
     findings.extend(evidence_checks.check(project, data))
