@@ -1,6 +1,6 @@
 ---
 name: world-research
-description: Research current events, history, policy, institutions, conflicts, economics, science-in-policy disputes, and other consequential public questions. Use for deep article research, evidence audits, disputed causal claims, methodology review, source criticism, and writer research packets. For broad or controversial questions, create one completed versioned Evidence Audit Project, inspect load-bearing primary and methodological evidence before synthesis, treat every source skeptically regardless of prestige, revise internally until the gate passes, and return a single finished packet unless the user later asks a genuinely new follow-up.
+description: Research current events, history, policy, institutions, conflicts, economics, science-in-policy disputes, and other consequential public questions. Use for deep article research, evidence audits, disputed causal claims, methodology review, source criticism, and self-contained educational writer research packets. For broad or controversial questions, create one completed versioned Evidence Audit Project, inspect load-bearing primary and methodological evidence before synthesis, teach the issue to an intelligent non-specialist, require a packet-only cold-reader pass, revise internally until the gate passes, and return one finished packet unless the user later asks a genuinely new follow-up.
 ---
 
 # World Research
@@ -16,6 +16,7 @@ Act as a skeptical research desk for a writer. Produce one completed research pa
 - Prefer primary or near-primary material when it exists, but audit primary sources too. An agency release proves what an agency announced, not necessarily what happened; a filing proves what was represented under its legal context, not that every representation is true.
 - Read load-bearing studies and reports beyond abstracts, summaries, press releases, and headlines. Inspect the relevant methods, data, results, uncertainty, limitations, conflicts, and rebuttals.
 - Search for the strongest evidence against the emerging conclusion. Apply the same evidentiary demands to favored and disfavored claims.
+- Treat knowledge transfer as a separate completion contract. Audit tables establish traceability; the packet must teach the background, mechanism, named evidence, uncertainty, and article relevance without requiring the reader to open another artifact.
 - Use `references/evidence-standard.md` for the complete claim-level audit contract.
 
 ## One-assignment completion contract
@@ -50,13 +51,14 @@ Only create an update when the user asks a new follow-up, new evidence appears, 
 8. Explain the issue in plain English: timeline where relevant, institutions, technical machinery, incentives, money or power flows, affected people, and causal reasoning.
 9. Map actual current or historically relevant viewpoints through named actors, institutions, texts, or movements. Derive relevant perspectives from the dispute; do not fill a predetermined ideological checklist. Read `references/viewpoint-and-incentive-audit.md` when viewpoints materially affect the assignment.
 10. Run a contradiction search and adversarial review. Turn every resolvable blocker into an internal research task, update the artifacts, and continue.
-11. Write one coherent `writer-research-packet.md` using `references/writer-packet-spec.md`.
-12. Set the project and work-state completion fields only after central research is complete, then run:
+11. Read `references/reader-education.md` and `references/writer-packet-spec.md`. Register central teaching modules in `reader-education.csv`, then write one coherent `writer-research-packet.md` with an `Education Brief` that teaches before it compresses.
+12. Give only the packet to an independent cold reader. Record one substantive result per central module in `cold-reader-evaluation.md`; revise the packet itself until the evaluator can reconstruct every module and returns `VERDICT: pass` without consulting another artifact.
+13. Set the project and work-state completion fields only after central research and the cold-reader test are complete, then run:
 
     `python skills/world-research/scripts/research_quality_gate.py research/<topic-slug>`
 
-13. Revise until the gate reports no failures. The gate writes `gate-report.json`; do not handwrite or self-certify its result.
-14. Give the user a concise guided summary and links to the packet and audit tables.
+14. Revise until the gate reports no failures. The gate writes `gate-report.json`; do not handwrite or self-certify its result.
+15. Give the user a concise guided summary and links to the packet and audit tables.
 
 ## Project artifacts
 
@@ -65,6 +67,8 @@ Only create an update when the user asks a new follow-up, new evidence appears, 
 - `claims.csv`: claim universe, load-bearing status, verdict, confidence basis, counterevidence status, and revision condition.
 - `sources.csv`: source identity plus claim-specific provenance, access, method, data, incentive, and limitation audit.
 - `extractions.csv`: evidence chains connecting claims to inspected source material.
+- `reader-education.csv`: central teaching modules, their claim mappings, required explanations, packet headings, and cold-reader status.
+- `cold-reader-evaluation.md`: packet-only comprehension test with one substantive result for every central module.
 - `work-state.json`: internal acquisition, contradiction, method-audit, and adversarial-review state.
 - `source-cache/manifest.csv`: truthful local, external-archive, URL-only, metadata-only, or unavailable preservation state.
 - `gate-report.json`: generated structural and evidence-integrity findings.
@@ -83,6 +87,7 @@ A completed project must:
 - Represent the strongest counterevidence and relevant competing interpretations fairly.
 - Mark genuine evidentiary limits without treating ordinary unfinished desk research as an unknown.
 - Separate research readiness from article-angle readiness.
+- Pass the packet-only cold-reader test for every central education module.
 - Include no user-facing request for another Codex research pass.
 - State: `No further Codex research pass is required for the stated boundary.`
 - Pass the generated quality gate.
@@ -93,5 +98,6 @@ A completed project must:
 - Read `references/project-schema.md` after initializing or migrating a project.
 - Read `references/method-audits.md` for the source types relevant to the assignment.
 - Read `references/writer-packet-spec.md` before writing the final packet.
+- Read `references/reader-education.md` before registering education modules or drafting the packet.
 - Read `references/viewpoint-and-incentive-audit.md` when the issue contains contested narratives, ideology, institutional claims, or policy disagreement.
 - Read `references/preflight-gate.md` before finalizing.

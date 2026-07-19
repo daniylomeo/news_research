@@ -18,6 +18,7 @@ from research_gate.schema import (  # noqa: E402
     CLAIM_HEADERS,
     EXTRACTION_HEADERS,
     MANIFEST_HEADERS,
+    READER_EDUCATION_HEADERS,
     SOURCE_HEADERS,
 )
 
@@ -94,12 +95,60 @@ def valid_extraction() -> dict[str, str]:
     }
 
 
+def valid_reader_module() -> dict[str, str]:
+    return {
+        "module_id": "M1",
+        "topic_or_case": "Independent row-level series",
+        "claim_ids": "C1",
+        "central": "yes",
+        "reader_questions": "How is the reported total produced, what does it measure, and what can it establish?",
+        "required_background": "The participating jurisdictions, record system, denominator, identifiers, and annual cutoff.",
+        "required_sequence_or_mechanism": "How local records become deduplicated annual totals and how the periods are compared.",
+        "required_evidence_explanation": "The named dataset, codebook, row-level reproduction, and why those records support the bounded result.",
+        "required_dispute_or_limit": "Incomplete geographic coverage and reporting compliance as an alternative explanation.",
+        "required_article_relevance": "Why the result supports a descriptive article but not a causal claim.",
+        "packet_heading": "M1 — Independent row-level series",
+        "status": "complete",
+        "cold_reader_status": "pass",
+        "cold_reader_notes": "The reader reconstructed the record flow, evidence, limitation, and article boundary from the packet alone.",
+    }
+
+
+def cold_reader_text() -> str:
+    return """# Cold-Reader Evaluation
+
+VERDICT: pass
+
+Other artifacts consulted: no
+
+Reader education and knowledge transfer passed. Case comprehension passed. Tables used as recaps.
+
+## Module Results
+
+| Module ID | What happened or how it works | Actors and stakes understood | Evidence named and explained | Dispute or limit understood | Article relevance understood | Result |
+|---|---|---|---|---|---|---|
+| M1 | Yes — local records enter the series, stable identifiers permit deduplication, and the annual cutoff produces totals for comparison across the two periods. | Yes — participating jurisdictions supply completed records, while readers need the stable denominator and exclusions to understand the measured stakes. | Yes — the named row-level dataset and codebook document the observations, and the reproduced calculation supports the bounded reported-total account. | Yes — incomplete geographic coverage and changing reporting compliance remain alternative explanations, so the evidence does not establish why activity increased. | Yes — the module supports an article about the measured descriptive increase while warning that the thesis cannot convert it into a causal result. | pass |
+
+## Reader Education And Knowledge Transfer Verdict
+
+- Can the reader accurately explain every central module without consulting another artifact? yes
+- Does the packet define unfamiliar people, institutions, events, laws, and mechanisms before relying on them? yes
+- Are tables used as recaps rather than substitutes for explanation? yes
+- Case comprehension failures: none
+- Required revisions: none
+"""
+
+
 def packet_text(extra: str = "") -> str:
     return f"""# Writer Research Packet
 
 ## Assignment And Boundary
 
 The assignment tests a defined factual series inside the documented population and period. This is not a full restatement of unrelated evidence.
+
+- Reader baseline: intelligent non-specialist
+- Assumed prior knowledge: none
+- Knowledge-transfer goal: explain the record system, calculation, evidence, limitations, and article relevance without requiring another artifact
 
 ## Bottom Line
 
@@ -108,6 +157,20 @@ The row-level evidence supports the limited reported-total claim (C1, S1).
 ## How The System Works
 
 Local records enter a published row-level series. Stable identifiers permit deduplication, while a documented annual cutoff determines inclusion. The result measures completed records in participating jurisdictions rather than every possible jurisdiction.
+
+## Education Brief
+
+### M1 — Independent row-level series
+
+**Reader orientation.** Participating jurisdictions submit completed local records to an independent producer, which publishes a row-level series. The important stakes are the defined population, stable identifiers, annual cutoff, and denominator used to compare the two reported periods.
+
+**What happened or how it works.** Local records enter the published series, stable identifiers allow the producer to remove duplicates, and the documented annual cutoff assigns records to a year. Summing the included rows produces comparable totals for 2024 and 2025.
+
+**Evidence guide.** The [Independent Row-Level Series](https://example.org/data/series.csv) is the inspected dataset and codebook. Its rows document the observations, identifiers, and annual totals, while reproducing the published calculation explains why the record supports the bounded descriptive result (C1, S1).
+
+**Dispute and limits.** Two jurisdictions do not participate, so the dataset cannot describe the entire country. Reporting compliance could also raise the observed total without an equal increase in underlying activity, leaving a serious alternative explanation for the change.
+
+**Why it matters.** The reproduced series supports an article explaining a measured increase inside the documented population. It also places a firm guardrail around the thesis: the descriptive comparison cannot establish a behavioral cause or represent excluded jurisdictions.
 
 ## Evidence By Claim
 
@@ -155,8 +218,8 @@ class ProjectFixture:
         (root / "updates").mkdir()
         (root / "project.json").write_text(json.dumps({
             "schema_version": "2.0",
-            "skill_version": "2.0.0",
-            "gate_version": "2.0.0",
+            "skill_version": "2.1.0",
+            "gate_version": "2.1.0",
             "project_id": "test-project",
             "assignment_type": "original",
             "parent_project": None,
@@ -179,9 +242,11 @@ class ProjectFixture:
             "optional_original_reporting": [],
         }, indent=2), encoding="utf-8")
         (root / "writer-research-packet.md").write_text(packet_text(), encoding="utf-8")
+        (root / "cold-reader-evaluation.md").write_text(cold_reader_text(), encoding="utf-8")
         write_csv(root / "claims.csv", CLAIM_HEADERS, [valid_claim()])
         write_csv(root / "sources.csv", SOURCE_HEADERS, [valid_source()])
         write_csv(root / "extractions.csv", EXTRACTION_HEADERS, [valid_extraction()])
+        write_csv(root / "reader-education.csv", READER_EDUCATION_HEADERS, [valid_reader_module()])
         write_csv(root / "source-cache" / "manifest.csv", MANIFEST_HEADERS, [{
             "source_id": "S1",
             "original_url": "https://example.org/data/series.csv",
@@ -229,7 +294,7 @@ class ResearchGateTests(unittest.TestCase):
         self.assertEqual(0, proc.returncode, proc.stdout + proc.stderr)
         report = json.loads((self.project / "gate-report.json").read_text(encoding="utf-8"))
         self.assertEqual("pass", report["status"])
-        self.assertEqual("2.0.0", report["gate_version"])
+        self.assertEqual("2.1.0", report["gate_version"])
 
     def test_empty_tables_fail_directly(self) -> None:
         self.fixture.write_rows("claims.csv", CLAIM_HEADERS, [])

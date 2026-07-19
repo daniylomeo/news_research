@@ -24,7 +24,10 @@ class CliWorkflowTests(unittest.TestCase):
             initialize_project(project, "What does the evidence establish?", "A bounded test of initializer behavior and completion safeguards.")
             metadata = json.loads((project / "project.json").read_text(encoding="utf-8"))
             self.assertEqual("2.0", metadata["schema_version"])
+            self.assertEqual("2.1.0", metadata["gate_version"])
             self.assertEqual("researching", metadata["status"])
+            self.assertTrue((project / "reader-education.csv").exists())
+            self.assertTrue((project / "cold-reader-evaluation.md").exists())
             codes = {item["code"] for item in evaluate_project(project)["findings"]}
             self.assertTrue({"no_claims", "no_sources", "no_extractions"}.issubset(codes))
             self.assertIn("project_not_complete", codes)

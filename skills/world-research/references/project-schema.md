@@ -1,6 +1,6 @@
 # Version 2 Project Schema
 
-Use the initializer-generated headers exactly. Schema and gate version are `2.0` and `2.0.0`.
+Use the initializer-generated headers exactly. Schema and gate version are `2.0` and `2.1.0`.
 
 ## project.json
 
@@ -90,11 +90,20 @@ Use raw evidence and pinpoint locations, not generic source summaries. Quantitat
 
 A URL is never a local cache. Local paths must resolve inside the project and hashes must match.
 
+## reader-education.csv
+
+Each row registers one teaching module with a unique `module_id`, exact `packet_heading`, `topic_or_case`, mapped `claim_ids`, centrality, reader questions, required background, sequence or mechanism, evidence explanation, dispute or limit, article relevance, completion status, cold-reader status, and substantive cold-reader notes. Every load-bearing claim must be covered by at least one central module. Split modules when several subjects would otherwise be compressed into one row.
+
+## cold-reader-evaluation.md
+
+This is a packet-only comprehension test. It must disclose `Other artifacts consulted: no`, contain exactly one substantive result row for every central module, clear all five comprehension dimensions, report no failures or revisions, and end with one unambiguous `VERDICT: pass`. The evaluator may not consult claims, sources, extractions, cache files, notes, or another evaluation.
+
 ## Completion order
 
 1. Finish claim, source, extraction, contradiction, method, and adversarial work.
 2. Empty `unresolved_central_tasks` and mark the source universe and method audits complete.
 3. Set adversarial review to pass with no blockers.
 4. Write the final packet and completion sentence.
-5. Set project readiness, `completed_at`, and `status=complete`.
-6. Run the gate and use the generated `gate-report.json`.
+5. Run the packet-only cold-reader test and revise the packet until every central module passes.
+6. Set project readiness, `completed_at`, and `status=complete`.
+7. Run the gate and use the generated `gate-report.json`.
